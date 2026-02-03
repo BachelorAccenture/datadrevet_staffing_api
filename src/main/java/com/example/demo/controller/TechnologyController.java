@@ -1,4 +1,5 @@
 package com.example.demo.controller;
 
-public class TechnologyController {
+public class TechnologyController
+{
 }
