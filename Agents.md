@@ -28,7 +28,7 @@ This is a **data-driven staffing system** for consulting firms, built as a bache
 </parent>
 
 <properties>
-    <java.version>21</java.version>
+<java.version>21</java.version>
 </properties>
 ```
 
@@ -38,6 +38,19 @@ This is a **data-driven staffing system** for consulting firms, built as a bache
 - `spring-boot-starter-web`
 - `spring-boot-starter-validation`
 - `spring-boot-starter-test`
+- `lombok`
+
+---
+
+## Code Formatting
+
+| Rule | Value |
+|------|-------|
+| Indentation | 4 spaces |
+| Line length | Maximum 120 characters |
+| Blank lines | Use to separate logical blocks |
+| Encoding | UTF-8 |
+| IDE | IntelliJ IDEA default code style |
 
 ---
 
@@ -52,6 +65,7 @@ staffing-service/
 │   ├── controller/
 │   ├── dto/
 │   ├── exception/
+│   ├── mapper/
 │   ├── model/
 │   ├── repository/
 │   ├── service/
@@ -70,11 +84,11 @@ com.accenture.staffing/
 │   ├── request/
 │   └── response/
 ├── exception/           # Custom exceptions & handlers
+├── mapper/              # DTO ↔ Entity mappers
 ├── model/               # Neo4j node entities
 │   └── relationship/    # Relationship entities
 ├── repository/          # Neo4j repositories
 ├── service/             # Business logic
-│   └── impl/            # Service implementations (optional)
 └── util/                # Utility classes
 ```
 
@@ -84,12 +98,77 @@ com.accenture.staffing/
 
 ### General Rules
 
-1. **Use constructor injection** — never field injection with `@Autowired`
-2. **Use Java records** for DTOs and immutable data
-3. **Use `Optional`** for nullable return types, never return `null`
-4. **Validate input** at controller level with `@Valid`
-5. **Keep controllers thin** — delegate logic to services
-6. **Use Lombok sparingly** — prefer records; use `@Slf4j` for logging
+1. **All method parameters must be `final`**
+2. **All variables should be `final` where possible**
+3. **Use `@RequiredArgsConstructor`** for dependency injection (Lombok)
+4. **Use Java records** for DTOs and immutable data
+5. **Use `Optional`** for nullable return types, never return `null`
+6. **Validate input** at controller level with `@Valid`
+7. **Keep controllers thin** — delegate logic to services
+8. **Prefer early returns** — avoid unnecessary `else` statements
+9. **Avoid magic numbers/strings** — use constants
+10. **Check null/empty** before operations on collections and strings
+
+### Lombok Usage
+
+| Annotation | Usage |
+|------------|-------|
+| `@RequiredArgsConstructor` | Dependency injection via constructor |
+| `@Slf4j` | Logging |
+| `@Builder(setterPrefix = "with")` | Complex object creation |
+| `@Getter` / `@Setter` | When needed (prefer records for DTOs) |
+
+```java
+// ✅ DO: Lombok for DI, final fields
+@Service
+@RequiredArgsConstructor
+@Slf4j
+public class ConsultantService {
+    private final ConsultantRepository consultantRepository;
+    private final ConsultantMapper consultantMapper;
+    
+    public ConsultantResponse findById(final Long id) {
+        final Consultant consultant = consultantRepository.findById(id)
+            .orElseThrow(() -> new ResourceNotFoundException("Consultant", id));
+        return consultantMapper.toResponse(consultant);
+    }
+}
+
+// ❌ DON'T: Manual constructor, missing final
+@Service
+public class ConsultantService {
+    private ConsultantRepository consultantRepository;
+    
+    public ConsultantService(ConsultantRepository repo) {
+        this.consultantRepository = repo;
+    }
+}
+```
+
+### Avoid Comments
+
+Comments are allowed only for:
+- Cron expressions
+- Regex patterns
+- TODOs
+- `// given / when / then` separation in tests
+
+### Boolean Wrapping
+
+```java
+// ✅ DO: Wrap complex conditions
+final boolean isAvailable = consultant.getEndDate() == null 
+    || consultant.getEndDate().isAfter(projectStart);
+    
+if (isAvailable) {
+    // ...
+}
+
+// ❌ DON'T: Inline complex conditions
+if (consultant.getEndDate() == null || consultant.getEndDate().isAfter(projectStart)) {
+    // ...
+}
+```
 
 ---
 
@@ -154,24 +233,15 @@ public class ConsMtchSvc {           // Abbreviated
 | Repository | `[Entity]Repository` | `ConsultantRepository` |
 | Service | `[Domain]Service` | `MatchingService`, `ConsultantService` |
 | Controller | `[Domain]Controller` | `ConsultantController` |
-| DTO Request | `[Action][Entity]Request` | `CreateConsultantRequest` |
-| DTO Response | `[Entity]Response` | `ConsultantResponse` |
+| DTO Request | `[Action][Entity]Request` (record) | `CreateConsultantRequest` |
+| DTO Response | `[Entity]Response` (class + @Builder) | `ConsultantResponse` |
+| Mapper | `[Entity]Mapper` | `ConsultantMapper` |
 | Exception | `[Description]Exception` | `ResourceNotFoundException` |
 
 ### Code Style
 
 ```java
-// ✅ DO: Constructor injection with final fields
-@Service
-public class ConsultantService {
-    private final ConsultantRepository consultantRepository;
-    
-    public ConsultantService(ConsultantRepository consultantRepository) {
-        this.consultantRepository = consultantRepository;
-    }
-}
-
-// ✅ DO: Use records for DTOs
+// ✅ DO: Records for DTOs
 public record CreateConsultantRequest(
     @NotBlank String name,
     @Email String email,
@@ -179,7 +249,16 @@ public record CreateConsultantRequest(
 ) {}
 
 // ✅ DO: Return Optional for nullable queries
-public Optional<Consultant> findByEmail(String email);
+public Optional<Consultant> findByEmail(final String email);
+
+// ✅ DO: Early returns
+public ConsultantResponse getConsultant(final Long id) {
+    final Optional<Consultant> consultant = repository.findById(id);
+    if (consultant.isEmpty()) {
+        throw new ResourceNotFoundException("Consultant", id);
+    }
+    return mapper.toResponse(consultant.get());
+}
 
 // ❌ DON'T: Field injection
 @Autowired
@@ -187,6 +266,9 @@ private ConsultantRepository repo;
 
 // ❌ DON'T: Return null
 public Consultant findById(Long id) { return null; }
+
+// ❌ DON'T: Non-final parameters
+public void process(String name) { }  // should be: final String name
 ```
 
 ---
@@ -295,24 +377,32 @@ public interface ConsultantRepository extends Neo4jRepository<Consultant, Long> 
 ### Response Format
 
 ```java
-// Success response
-public record ApiResponse<T>(
-    boolean success,
-    T data,
-    String message
-) {
-    public static <T> ApiResponse<T> ok(T data) {
-        return new ApiResponse<>(true, data, null);
-    }
+// Request DTO — use records (immutable, no builder needed)
+public record CreateConsultantRequest(
+    @NotBlank String name,
+    @Email String email,
+    @NotEmpty Set<String> skills
+) {}
+
+// Response DTO — use @Builder for mapper compatibility
+@Getter
+@Builder(setterPrefix = "with")
+public class ConsultantResponse {
+    private final Long id;
+    private final String name;
+    private final String email;
+    private final Set<SkillResponse> skills;
 }
 
 // Error response
-public record ErrorResponse(
-    int status,
-    String error,
-    String message,
-    LocalDateTime timestamp
-) {}
+@Getter
+@Builder(setterPrefix = "with")
+public class ErrorResponse {
+    private final int status;
+    private final String error;
+    private final String message;
+    private final LocalDateTime timestamp;
+}
 ```
 
 ### Controller Example
@@ -320,25 +410,22 @@ public record ErrorResponse(
 ```java
 @RestController
 @RequestMapping("/api/v1/consultants")
+@RequiredArgsConstructor
+@Slf4j
 public class ConsultantController {
     
     private final ConsultantService consultantService;
     
-    public ConsultantController(ConsultantService consultantService) {
-        this.consultantService = consultantService;
-    }
-    
     @PostMapping
     public ResponseEntity<ConsultantResponse> create(
-            @Valid @RequestBody CreateConsultantRequest request) {
-        var consultant = consultantService.create(request);
-        return ResponseEntity
-            .status(HttpStatus.CREATED)
-            .body(consultant);
+            @Valid @RequestBody final CreateConsultantRequest request) {
+        log.info("[ConsultantController] - CREATE_REQUEST: email: {}", request.email());
+        final ConsultantResponse response = consultantService.create(request);
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
     
     @GetMapping("/{id}")
-    public ResponseEntity<ConsultantResponse> getById(@PathVariable Long id) {
+    public ResponseEntity<ConsultantResponse> getById(@PathVariable final Long id) {
         return consultantService.findById(id)
             .map(ResponseEntity::ok)
             .orElseThrow(() -> new ResourceNotFoundException("Consultant", id));
@@ -370,20 +457,23 @@ public class BusinessRuleException extends RuntimeException {
 
 ```java
 @RestControllerAdvice
+@Slf4j
 public class GlobalExceptionHandler {
     
     @ExceptionHandler(ResourceNotFoundException.class)
-    public ResponseEntity<ErrorResponse> handleNotFound(ResourceNotFoundException ex) {
+    public ResponseEntity<ErrorResponse> handleNotFound(final ResourceNotFoundException ex) {
+        log.warn("[ExceptionHandler] - NOT_FOUND: message: {}", ex.getMessage());
         return ResponseEntity.status(404).body(new ErrorResponse(
             404, "Not Found", ex.getMessage(), LocalDateTime.now()
         ));
     }
     
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<ErrorResponse> handleValidation(MethodArgumentNotValidException ex) {
-        String message = ex.getBindingResult().getFieldErrors().stream()
+    public ResponseEntity<ErrorResponse> handleValidation(final MethodArgumentNotValidException ex) {
+        final String message = ex.getBindingResult().getFieldErrors().stream()
             .map(e -> e.getField() + ": " + e.getDefaultMessage())
             .collect(Collectors.joining(", "));
+        log.warn("[ExceptionHandler] - VALIDATION_FAILED: errors: {}", message);
         return ResponseEntity.status(400).body(new ErrorResponse(
             400, "Validation Error", message, LocalDateTime.now()
         ));
@@ -393,24 +483,98 @@ public class GlobalExceptionHandler {
 
 ---
 
+## Mappers
+
+Use **static mappers** for DTO ↔ Entity conversion.
+
+### Structure
+
+```java
+public final class ConsultantMapper {
+    
+    private ConsultantMapper() {
+        throw new UnsupportedOperationException("Utility class");
+    }
+    
+    public static ConsultantResponse toResponse(final Consultant consultant) {
+        if (consultant == null) {
+            return null;
+        }
+        return ConsultantResponse.builder()
+            .withId(consultant.getId())
+            .withName(consultant.getName())
+            .withEmail(consultant.getEmail())
+            .withSkills(mapSkills(consultant.getSkills()))
+            .build();
+    }
+    
+    public static Consultant toEntity(final CreateConsultantRequest request) {
+        if (request == null) {
+            return null;
+        }
+        final Consultant consultant = new Consultant();
+        consultant.setName(request.name());
+        consultant.setEmail(request.email());
+        return consultant;
+    }
+    
+    private static Set<SkillResponse> mapSkills(final Set<HasSkill> skills) {
+        if (skills == null || skills.isEmpty()) {
+            return Set.of();
+        }
+        return skills.stream()
+            .map(SkillMapper::toResponse)
+            .collect(Collectors.toSet());
+    }
+}
+```
+
+### Naming Conventions
+
+| Type | Pattern | Example |
+|------|---------|---------|
+| Class | `[Entity]Mapper` | `ConsultantMapper`, `ProjectMapper` |
+| To response | `toResponse()` | `ConsultantMapper.toResponse(entity)` |
+| To entity | `toEntity()` | `ConsultantMapper.toEntity(request)` |
+| To list | `toResponseList()` | `ConsultantMapper.toResponseList(entities)` |
+
+### Rules
+
+1. **Private constructor** — mappers are utility classes
+2. **Null check first** — return null if input is null
+3. **Static methods only** — no instance state
+4. **Use `@Builder`** on response DTOs for clean mapping
+
+---
+
 ## Testing Rules
 
 ### Test Structure
 
 ```
 src/test/java/
-├── integration/         # Full integration tests
-├── repository/          # Repository tests with @DataNeo4jTest
-├── service/             # Service unit tests
-└── controller/          # Controller tests with @WebMvcTest
+├── integration/         # Full integration tests (@SpringBootTest)
+├── repository/          # Repository tests (@DataNeo4jTest)
+├── service/             # Service unit tests (Mockito)
+└── controller/          # Controller tests (@WebMvcTest)
 ```
+
+### Frameworks
+
+| Tool | Usage |
+|------|-------|
+| JUnit 5 | Test framework |
+| Mockito | Mocking dependencies |
+| Testcontainers | Neo4j integration tests |
+| AssertJ | Fluent assertions |
 
 ### Conventions
 
-1. **Use descriptive test names**: `shouldReturnConsultant_whenValidIdProvided()`
-2. **Use Testcontainers** for Neo4j integration tests
-3. **Mock external dependencies** in unit tests
-4. **Follow AAA pattern**: Arrange, Act, Assert
+1. **Test naming**: `methodName_condition_expectedResult()` or snake_case `method_name_condition_expected_result()`
+2. **Use `given / when / then`** comments to structure tests
+3. **Use Testcontainers** for Neo4j integration tests
+4. **Mock external dependencies** in unit tests with `@Mock` and `@InjectMocks`
+5. **Field injection allowed** in tests with `@Autowired`
 
 ```java
 @DataNeo4jTest
@@ -421,20 +585,102 @@ class ConsultantRepositoryTest {
     static Neo4jContainer<?> neo4j = new Neo4jContainer<>("neo4j:5")
         .withoutAuthentication();
     
+    @Autowired
+    private ConsultantRepository repository;
+    
     @Test
-    void shouldFindConsultantsBySkills() {
-        // Arrange
-        var consultant = createConsultantWithSkills("Java", "Spring");
+    void findBySkills_withMatchingSkills_returnsConsultants() {
+        // given
+        final Consultant consultant = createConsultantWithSkills("Java", "Spring");
+        repository.save(consultant);
         
-        // Act
-        var result = repository.findBySkillsIn(Set.of("Java"), 10);
+        // when
+        final List<Consultant> result = repository.findBySkillsIn(Set.of("Java"), 10);
         
-        // Assert
+        // then
         assertThat(result).hasSize(1);
         assertThat(result.get(0).getName()).isEqualTo(consultant.getName());
     }
 }
 ```
+
+```java
+@ExtendWith(MockitoExtension.class)
+class ConsultantServiceTest {
+    
+    @Mock
+    private ConsultantRepository consultantRepository;
+    
+    @InjectMocks
+    private ConsultantService consultantService;
+    
+    @Test
+    void findById_withValidId_returnsConsultant() {
+        // given
+        final Long id = 1L;
+        final Consultant consultant = new Consultant();
+        when(consultantRepository.findById(id)).thenReturn(Optional.of(consultant));
+        
+        // when
+        final Optional<ConsultantResponse> result = consultantService.findById(id);
+        
+        // then
+        assertThat(result).isPresent();
+        verify(consultantRepository).findById(id);
+    }
+}
+```
+
+---
+
+## Logging
+
+### Setup
+
+Use `@Slf4j` from Lombok — never create Logger instances manually.
+
+```java
+@Service
+@RequiredArgsConstructor
+@Slf4j
+public class ConsultantService {
+    // log is available automatically
+}
+```
+
+### Log Levels
+
+| Level | Usage |
+|-------|-------|
+| `DEBUG` | Development details, method entry/exit |
+| `INFO` | Business events, API calls, successful operations |
+| `WARN` | Recoverable issues, deprecated usage |
+| `ERROR` | Failures, exceptions, unrecoverable issues |
+
+### Format Template
+
+```java
+// Pattern: [ServiceName] - ACTION: key: {}, key: {}
+
+// INFO - successful operations
+log.info("[ConsultantService] - CREATED: consultantId: {}, email: {}", id, email);
+log.info("[MatchingService] - MATCH_FOUND: projectId: {}, matchCount: {}", projectId, count);
+
+// ERROR - failures
+log.error("[ConsultantService] - FETCH_FAILED: consultantId: {}, error: {}", id, ex.getMessage());
+log.error("[ProjectService] - ASSIGNMENT_FAILED: projectId: {}, reason: {}", projectId, reason);
+
+// DEBUG - development
+log.debug("[ConsultantService] - QUERY: skillNames: {}, limit: {}", skills, limit);
+```
+
+### Rules
+
+1. **Use placeholders `{}`** — never string concatenation
+2. **Include context** — IDs, counts, relevant identifiers
+3. **No sensitive data** — never log passwords, tokens, PII
+4. **Prefix with service name** — `[ServiceName]` for filtering
+5. **Use consistent action names** — `CREATED`, `UPDATED`, `DELETED`, `FETCH_FAILED`
 
 ---
 
@@ -504,12 +750,20 @@ test(service): add matching service tests
 ## Do NOT
 
 ### Architecture
-- ❌ Use field injection (`@Autowired` on fields)
+- ❌ Use field injection (`@Autowired` on fields) — except in tests
 - ❌ Return `null` from service methods
 - ❌ Put business logic in controllers
 - ❌ Catch generic `Exception` — be specific
 - ❌ Hardcode configuration values
 - ❌ Skip writing tests for new features
+
+### Code Style
+- ❌ Omit `final` on parameters and local variables
+- ❌ Use magic numbers — define constants
+- ❌ Use `var` — prefer explicit types
+- ❌ Use `@Data` — prefer `@Getter`/`@Setter` or records
+- ❌ Write comments — except cron, regex, TODOs, test sections
+- ❌ Use string concatenation in logs — use `{}` placeholders
 
 ### Naming
 - ❌ Use abbreviations (`consSvc`, `projRepo`, `mgr`)
@@ -523,4 +777,4 @@ test(service): add matching service tests
 
 ### General
 - ❌ Ignore validation — always use `@Valid`
-- ❌ Use `var` when type is not obvious from context
+- ❌ Log sensitive data — no passwords, tokens, PII
