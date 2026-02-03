@@ -1,4 +1,8 @@
 package com.example.demo.model;
 
-public class f {
+public enum ProficiencyLevel {
+    BEGINNER,
+    INTERMEDIATE,
+    ADVANCED,
+    EXPERT
 }
