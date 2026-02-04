@@ -13,6 +13,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -68,6 +69,24 @@ public class ConsultantService {
     public List<Consultant> findAvailableWithMinExperience(final Integer minYears) {
         log.debug("[ConsultantService] - FIND_AVAILABLE_WITH_MIN_EXPERIENCE: minYears: {}", minYears);
         return consultantRepository.findAvailableWithMinExperience(minYears);
+    }
+
+    public List<Consultant> searchConsultants(final List<String> skillNames,
+                                              final List<String> technologyNames,
+                                              final String role,
+                                              final Integer minYearsOfExperience) {
+        log.info("[ConsultantService] - SEARCH: skills: {}, technologies: {}, role: {}, minYears: {}",
+                skillNames, technologyNames, role, minYearsOfExperience);
+
+        final List<String> safeSkillNames = skillNames != null ? skillNames : Collections.emptyList();
+        final List<String> safeTechnologyNames = technologyNames != null ? technologyNames : Collections.emptyList();
+
+        return consultantRepository.searchConsultants(
+                safeSkillNames,
+                safeTechnologyNames,
+                role,
+                minYearsOfExperience
+        );
     }
 
     public Consultant update(final String id, final Consultant updatedConsultant) {
