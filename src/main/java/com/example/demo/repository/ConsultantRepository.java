@@ -28,6 +28,7 @@ public interface ConsultantRepository extends Neo4jRepository<Consultant, String
         WHERE t.name IN $technologyNames
         RETURN c, collect(k), collect(t)
         """)
+
     List<Consultant> findByTechnologyNames(@Param("technologyNames") List<String> technologyNames);
 
     @Query("""
@@ -36,6 +37,27 @@ public interface ConsultantRepository extends Neo4jRepository<Consultant, String
         RETURN c
         """)
     List<Consultant> findAvailableWithMinExperience(@Param("minYears") Integer minYears);
+
+    @Query("""
+        MATCH (c:Consultant)
+        WHERE ($role IS NULL OR $role = '' OR toLower(c.role) CONTAINS toLower($role))
+          AND ($minYearsOfExperience IS NULL OR c.yearsOfExperience >= $minYearsOfExperience)
+          AND (size($skillNames) = 0 OR EXISTS {
+              MATCH (c)-[:HAS_SKILL]->(s:Skill) WHERE s.name IN $skillNames
+          })
+          AND (size($technologyNames) = 0 OR EXISTS {
+              MATCH (c)-[:KNOWS]->(t:Technology) WHERE t.name IN $technologyNames
+          })
+        OPTIONAL MATCH (c)-[hs:HAS_SKILL]->(skill:Skill)
+        OPTIONAL MATCH (c)-[k:KNOWS]->(tech:Technology)
+        RETURN c, collect(DISTINCT hs), collect(DISTINCT skill), collect(DISTINCT k), collect(DISTINCT tech)
+        """)
+    List<Consultant> searchConsultants(
+            @Param("skillNames") List<String> skillNames,
+            @Param("technologyNames") List<String> technologyNames,
+            @Param("role") String role,
+            @Param("minYearsOfExperience") Integer minYearsOfExperience
+    );
 
     boolean existsByEmail(String email);
 }
