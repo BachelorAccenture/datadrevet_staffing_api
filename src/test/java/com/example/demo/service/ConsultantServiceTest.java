@@ -553,4 +553,114 @@ class ConsultantServiceTest {
             assertThat(result).isFalse();
         }
     }
+
+    @Nested
+    @DisplayName("searchConsultants")
+    class SearchConsultants {
+
+        @Test
+        void searchConsultants_withAllParameters_returnsMatchingConsultants() {
+            // given
+            final List<String> skillNames = List.of("Java", "Python");
+            final List<String> technologyNames = List.of("Neo4j", "PostgreSQL");
+            final String role = "Developer";
+            final Integer minYears = 3;
+
+            when(consultantRepository.searchConsultants(skillNames, technologyNames, role, minYears))
+                    .thenReturn(List.of(testConsultant));
+
+            // when
+            final List<Consultant> result = consultantService.searchConsultants(
+                    skillNames, technologyNames, role, minYears);
+
+            // then
+            assertThat(result).hasSize(1);
+            assertThat(result.get(0).getId()).isEqualTo("consultant-123");
+            verify(consultantRepository).searchConsultants(skillNames, technologyNames, role, minYears);
+        }
+
+        @Test
+        void searchConsultants_withNullSkillsAndTechnologies_convertsToEmptyLists() {
+            // given
+            final String role = "Developer";
+            final Integer minYears = 5;
+
+            when(consultantRepository.searchConsultants(
+                    Collections.emptyList(), Collections.emptyList(), role, minYears))
+                    .thenReturn(List.of(testConsultant));
+
+            // when
+            final List<Consultant> result = consultantService.searchConsultants(
+                    null, null, role, minYears);
+
+            // then
+            assertThat(result).hasSize(1);
+            verify(consultantRepository).searchConsultants(
+                    Collections.emptyList(), Collections.emptyList(), role, minYears);
+        }
+
+        @Test
+        void searchConsultants_withNoMatches_returnsEmptyList() {
+            // given
+            final List<String> skillNames = List.of("Cobol");
+            final List<String> technologyNames = List.of("Mainframe");
+            final String role = "DevOps Engineer";
+            final Integer minYears = 15;
+
+            when(consultantRepository.searchConsultants(skillNames, technologyNames, role, minYears))
+                    .thenReturn(Collections.emptyList());
+
+            // when
+            final List<Consultant> result = consultantService.searchConsultants(
+                    skillNames, technologyNames, role, minYears);
+
+            // then
+            assertThat(result).isEmpty();
+            verify(consultantRepository).searchConsultants(skillNames, technologyNames, role, minYears);
+        }
+
+        @Test
+        void searchConsultants_withOnlyRole_returnsConsultants() {
+            // given
+            final String role = "Developer";
+
+            when(consultantRepository.searchConsultants(
+                    Collections.emptyList(), Collections.emptyList(), role, null))
+                    .thenReturn(List.of(testConsultant));
+
+            // when
+            final List<Consultant> result = consultantService.searchConsultants(
+                    null, null, role, null);
+
+            // then
+            assertThat(result).hasSize(1);
+            verify(consultantRepository).searchConsultants(
+                    Collections.emptyList(), Collections.emptyList(), role, null);
+        }
+
+        @Test
+        void searchConsultants_withMultipleResults_returnsAll() {
+            // given
+            final Consultant secondConsultant = new Consultant();
+            secondConsultant.setId("consultant-456");
+            secondConsultant.setName("Second Consultant");
+            secondConsultant.setRole("Developer");
+
+            final List<String> skillNames = List.of("Java");
+            final List<String> technologyNames = Collections.emptyList();
+
+            when(consultantRepository.searchConsultants(skillNames, technologyNames, null, null))
+                    .thenReturn(List.of(testConsultant, secondConsultant));
+
+            // when
+            final List<Consultant> result = consultantService.searchConsultants(
+                    skillNames, technologyNames, null, null);
+
+            // then
+            assertThat(result).hasSize(2);
+            assertThat(result).extracting(Consultant::getId)
+                    .containsExactly("consultant-123", "consultant-456");
+            verify(consultantRepository).searchConsultants(skillNames, technologyNames, null, null);
+        }
+    }
 }
