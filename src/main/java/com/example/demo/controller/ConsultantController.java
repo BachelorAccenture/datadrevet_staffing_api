@@ -137,8 +137,8 @@ public class ConsultantController {
     public ResponseEntity<ConsultantResponse> addSkill(
             @PathVariable final String id,
             @Valid @RequestBody final AddSkillRequest request) {
-        log.info("[ConsultantController] - ADD_SKILL: consultantId: {}, skillId: {}", id, request.skillId());
-        final Consultant consultant = consultantService.addSkill(id, request.skillId(), request.level());
+        log.info("[ConsultantController] - ADD_SKILL: consultantId: {}, skillId: {}, yearsExperience: {}", id, request.skillId(), request.yearsExperience());
+        final Consultant consultant = consultantService.addSkill(id, request.skillId(), request.yearsExperience());
         return ResponseEntity.ok(ConsultantMapper.toResponse(consultant));
     }
 
@@ -146,10 +146,10 @@ public class ConsultantController {
     public ResponseEntity<ConsultantResponse> addTechnology(
             @PathVariable final String id,
             @Valid @RequestBody final AddTechnologyRequest request) {
-        log.info("[ConsultantController] - ADD_TECHNOLOGY: consultantId: {}, technologyId: {}",
-                id, request.technologyId());
+        log.info("[ConsultantController] - ADD_TECHNOLOGY: consultantId: {}, technologyId: {}, yearsExperience: {}",
+                id, request.technologyId(), request.yearsExperience());
         final Consultant consultant = consultantService.addTechnology(
-                id, request.technologyId(), request.level(), request.yearsExperience());
+                id, request.technologyId(), request.yearsExperience());
         return ResponseEntity.ok(ConsultantMapper.toResponse(consultant));
     }
 }

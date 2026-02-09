@@ -1,6 +1,5 @@
 package com.example.demo.model.relationship;
 
-import com.example.demo.model.ProficiencyLevel;
 import com.example.demo.model.Skill;
 import lombok.Getter;
 import lombok.Setter;
@@ -22,6 +21,7 @@ public class HasSkill {
     @TargetNode
     private Skill skill;
 
-    @Property("level")
-    private ProficiencyLevel level;
+
+    @Property("yearsExperience")
+    private Integer yearsExperience;
 }

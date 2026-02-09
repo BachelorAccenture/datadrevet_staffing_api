@@ -77,7 +77,8 @@ public class DataLoader {
         ClassPathResource resource = new ClassPathResource("data/skills.csv");
 
         try (BufferedReader reader = new BufferedReader(new InputStreamReader(resource.getInputStream()))) {
-            String line = reader.readLine(); // Skip header
+            reader.readLine(); // Skip header
+            String line;
 
             while ((line = reader.readLine()) != null) {
                 String[] parts = line.split(",", -1);
@@ -103,7 +104,8 @@ public class DataLoader {
         ClassPathResource resource = new ClassPathResource("data/technologies.csv");
 
         try (BufferedReader reader = new BufferedReader(new InputStreamReader(resource.getInputStream()))) {
-            String line = reader.readLine(); // Skip header
+            reader.readLine(); // Skip header
+            String line;
 
             while ((line = reader.readLine()) != null) {
                 String[] parts = line.split(",", -1);
@@ -129,7 +131,8 @@ public class DataLoader {
         ClassPathResource resource = new ClassPathResource("data/companies.csv");
 
         try (BufferedReader reader = new BufferedReader(new InputStreamReader(resource.getInputStream()))) {
-            String line = reader.readLine(); // Skip header
+            reader.readLine(); // Skip header
+            String line;
 
             while ((line = reader.readLine()) != null) {
                 String[] parts = line.split(",", -1);
@@ -153,48 +156,45 @@ public class DataLoader {
         ClassPathResource resource = new ClassPathResource("data/consultants.csv");
 
         try (BufferedReader reader = new BufferedReader(new InputStreamReader(resource.getInputStream()))) {
-            String line = reader.readLine(); // Skip header
+            reader.readLine(); // Skip header
+            String line;
 
             while ((line = reader.readLine()) != null) {
                 String[] parts = line.split(",", -1);
                 if (parts.length >= 11) {
                     Consultant consultant = getConsultant(parts);
 
-                    // Parse skills (format: SkillName:Level;SkillName:Level)
+                    // Parse skills (format: SkillName:Years;SkillName:Years)
                     String skillsStr = parts[9].trim().replace("\"", "");
                     if (!skillsStr.isEmpty()) {
                         for (String skillEntry : skillsStr.split(";")) {
                             String[] skillParts = skillEntry.split(":");
                             if (skillParts.length >= 2) {
                                 String skillName = skillParts[0].trim();
-                                ProficiencyLevel level = ProficiencyLevel.valueOf(skillParts[1].trim());
-
+                                Integer yearsExp = Integer.parseInt(skillParts[1].trim());
                                 Skill skill = skillMap.get(skillName);
                                 if (skill != null) {
                                     HasSkill hasSkill = new HasSkill();
                                     hasSkill.setSkill(skill);
-                                    hasSkill.setLevel(level);
+                                    hasSkill.setYearsExperience(yearsExp);
                                     consultant.getSkills().add(hasSkill);
                                 }
                             }
                         }
                     }
 
-                    // Parse technologies (format: TechName:Level:YearsExp;TechName:Level:YearsExp)
+                    // Parse technologies (format: TechName:Years;TechName:Years)
                     String technologiesStr = parts[10].trim().replace("\"", "");
                     if (!technologiesStr.isEmpty()) {
                         for (String techEntry : technologiesStr.split(";")) {
                             String[] techParts = techEntry.split(":");
-                            if (techParts.length >= 3) {
+                            if (techParts.length >= 2) {
                                 String techName = techParts[0].trim();
-                                ProficiencyLevel level = ProficiencyLevel.valueOf(techParts[1].trim());
-                                Integer yearsExp = Integer.parseInt(techParts[2].trim());
-
+                                Integer yearsExp = Integer.parseInt(techParts[1].trim());
                                 Technology technology = technologyMap.get(techName);
                                 if (technology != null) {
                                     Knows knows = new Knows();
                                     knows.setTechnology(technology);
-                                    knows.setLevel(level);
                                     knows.setYearsExperience(yearsExp);
                                     consultant.getTechnologies().add(knows);
                                 }
@@ -304,4 +304,3 @@ public class DataLoader {
         }
     }
 }
-

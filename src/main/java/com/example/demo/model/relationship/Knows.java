@@ -1,6 +1,5 @@
 package com.example.demo.model.relationship;
 
-import com.example.demo.model.ProficiencyLevel;
 import com.example.demo.model.Technology;
 import lombok.Getter;
 import lombok.Setter;
@@ -22,8 +21,6 @@ public class Knows {
     @TargetNode
     private Technology technology;
 
-    @Property("level")
-    private ProficiencyLevel level;
 
     @Property("yearsExperience")
     private Integer yearsExperience;

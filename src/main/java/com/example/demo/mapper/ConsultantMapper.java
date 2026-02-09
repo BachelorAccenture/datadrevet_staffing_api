@@ -78,7 +78,7 @@ public final class ConsultantMapper {
         return HasSkillResponse.builder()
                 .withSkillId(hasSkill.getSkill() != null ? hasSkill.getSkill().getId() : null)
                 .withSkillName(hasSkill.getSkill() != null ? hasSkill.getSkill().getName() : null)
-                .withLevel(hasSkill.getLevel())
+                .withYearsExperience(hasSkill.getYearsExperience())
                 .build();
     }
 
@@ -95,7 +95,6 @@ public final class ConsultantMapper {
         return KnowsTechnologyResponse.builder()
                 .withTechnologyId(knows.getTechnology() != null ? knows.getTechnology().getId() : null)
                 .withTechnologyName(knows.getTechnology() != null ? knows.getTechnology().getName() : null)
-                .withLevel(knows.getLevel())
                 .withYearsExperience(knows.getYearsExperience())
                 .build();
     }

@@ -1,7 +1,6 @@
 package com.example.demo.service;
 
 import com.example.demo.model.Consultant;
-import com.example.demo.model.ProficiencyLevel;
 import com.example.demo.model.Skill;
 import com.example.demo.model.Technology;
 import com.example.demo.model.relationship.HasSkill;
@@ -112,28 +111,10 @@ public class ConsultantService {
         consultantRepository.deleteById(id);
     }
 
-    public Consultant addSkill(final String consultantId, final String skillId, final ProficiencyLevel level) {
-        log.info("[ConsultantService] - ADD_SKILL: consultantId: {}, skillId: {}, level: {}",
-                consultantId, skillId, level);
 
-        final Consultant consultant = consultantRepository.findById(consultantId)
-                .orElseThrow(() -> new IllegalArgumentException("Consultant not found with id: " + consultantId));
-
-        final Skill skill = skillRepository.findById(skillId)
-                .orElseThrow(() -> new IllegalArgumentException("Skill not found with id: " + skillId));
-
-        final HasSkill hasSkill = new HasSkill();
-        hasSkill.setSkill(skill);
-        hasSkill.setLevel(level);
-
-        consultant.getSkills().add(hasSkill);
-        return consultantRepository.save(consultant);
-    }
-
-    public Consultant addTechnology(final String consultantId, final String technologyId,
-                                    final ProficiencyLevel level, final Integer yearsExperience) {
-        log.info("[ConsultantService] - ADD_TECHNOLOGY: consultantId: {}, technologyId: {}, level: {}",
-                consultantId, technologyId, level);
+    public Consultant addTechnology(final String consultantId, final String technologyId, final Integer yearsExperience) {
+        log.info("[ConsultantService] - ADD_TECHNOLOGY: consultantId: {}, technologyId: {}, yearsExperience: {}",
+                consultantId, technologyId, yearsExperience);
 
         final Consultant consultant = consultantRepository.findById(consultantId)
                 .orElseThrow(() -> new IllegalArgumentException("Consultant not found with id: " + consultantId));
@@ -143,10 +124,27 @@ public class ConsultantService {
 
         final Knows knows = new Knows();
         knows.setTechnology(technology);
-        knows.setLevel(level);
         knows.setYearsExperience(yearsExperience);
 
         consultant.getTechnologies().add(knows);
+        return consultantRepository.save(consultant);
+    }
+
+    public Consultant addSkill(final String consultantId, final String skillId, final Integer yearsExperience) {
+        log.info("[ConsultantService] - ADD_SKILL: consultantId: {}, skillId: {}, yearsExperience: {}",
+                consultantId, skillId, yearsExperience);
+
+        final Consultant consultant = consultantRepository.findById(consultantId)
+                .orElseThrow(() -> new IllegalArgumentException("Consultant not found with id: " + consultantId));
+
+        final Skill skill = skillRepository.findById(skillId)
+                .orElseThrow(() -> new IllegalArgumentException("Skill not found with id: " + skillId));
+
+        final HasSkill hasSkill = new HasSkill();
+        hasSkill.setSkill(skill);
+        hasSkill.setYearsExperience(yearsExperience);
+
+        consultant.getSkills().add(hasSkill);
         return consultantRepository.save(consultant);
     }
 
