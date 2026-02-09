@@ -137,8 +137,9 @@ public class ConsultantController {
     public ResponseEntity<ConsultantResponse> addSkill(
             @PathVariable final String id,
             @Valid @RequestBody final AddSkillRequest request) {
-        log.info("[ConsultantController] - ADD_SKILL: consultantId: {}, skillId: {}, yearsExperience: {}", id, request.skillId(), request.yearsExperience());
-        final Consultant consultant = consultantService.addSkill(id, request.skillId(), request.yearsExperience());
+        log.info("[ConsultantController] - ADD_SKILL: consultantId: {}, skillId: {}, skillYearsOfExperience: {}",
+                id, request.skillId(), request.skillYearsOfExperience());
+        final Consultant consultant = consultantService.addSkill(id, request.skillId(), request.skillYearsOfExperience());
         return ResponseEntity.ok(ConsultantMapper.toResponse(consultant));
     }
 
@@ -146,10 +147,10 @@ public class ConsultantController {
     public ResponseEntity<ConsultantResponse> addTechnology(
             @PathVariable final String id,
             @Valid @RequestBody final AddTechnologyRequest request) {
-        log.info("[ConsultantController] - ADD_TECHNOLOGY: consultantId: {}, technologyId: {}, yearsExperience: {}",
-                id, request.technologyId(), request.yearsExperience());
+        log.info("[ConsultantController] - ADD_TECHNOLOGY: consultantId: {}, technologyId: {}, skillYearsOfExperience: {}",
+                id, request.technologyId(), request.skillYearsOfExperience());
         final Consultant consultant = consultantService.addTechnology(
-                id, request.technologyId(), request.yearsExperience());
+                id, request.technologyId(), request.skillYearsOfExperience());
         return ResponseEntity.ok(ConsultantMapper.toResponse(consultant));
     }
 }

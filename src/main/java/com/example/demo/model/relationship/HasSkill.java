@@ -21,7 +21,6 @@ public class HasSkill {
     @TargetNode
     private Skill skill;
 
-
-    @Property("yearsExperience")
-    private Integer yearsExperience;
+    @Property("skillYearsOfExperience")
+    private Integer skillYearsOfExperience;
 }

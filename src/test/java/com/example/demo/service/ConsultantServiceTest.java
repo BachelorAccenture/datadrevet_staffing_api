@@ -403,7 +403,7 @@ class ConsultantServiceTest {
             assertThat(savedConsultant.getSkills()).hasSize(1);
             final HasSkill addedSkill = savedConsultant.getSkills().iterator().next();
             assertThat(addedSkill.getSkill().getName()).isEqualTo("Java");
-            assertThat(addedSkill.getYearsExperience()).isEqualTo(5);
+            assertThat(addedSkill.getSkillYearsOfExperience()).isEqualTo(5);
         }
 
         @Test
@@ -447,7 +447,7 @@ class ConsultantServiceTest {
             // then
             verify(consultantRepository).save(consultantCaptor.capture());
             final HasSkill addedSkill = consultantCaptor.getValue().getSkills().iterator().next();
-            assertThat(addedSkill.getYearsExperience()).isEqualTo(10);
+            assertThat(addedSkill.getSkillYearsOfExperience()).isEqualTo(10);
         }
     }
 
@@ -473,7 +473,7 @@ class ConsultantServiceTest {
             assertThat(savedConsultant.getTechnologies()).hasSize(1);
             final Knows addedTech = savedConsultant.getTechnologies().iterator().next();
             assertThat(addedTech.getTechnology().getName()).isEqualTo("Neo4j");
-            assertThat(addedTech.getYearsExperience()).isEqualTo(3);
+            assertThat(addedTech.getSkillYearsOfExperience()).isEqualTo(3);
         }
 
         @Test
@@ -519,7 +519,7 @@ class ConsultantServiceTest {
             // then
             verify(consultantRepository).save(consultantCaptor.capture());
             final Knows addedTech = consultantCaptor.getValue().getTechnologies().iterator().next();
-            assertThat(addedTech.getYearsExperience()).isNull();
+            assertThat(addedTech.getSkillYearsOfExperience()).isNull();
         }
     }
 

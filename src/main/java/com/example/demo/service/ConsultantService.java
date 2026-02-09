@@ -19,7 +19,7 @@ import java.util.Optional;
 @Service
 @RequiredArgsConstructor
 @Slf4j
-public class ConsultantService {
+public class    ConsultantService {
 
     private final ConsultantRepository consultantRepository;
     private final SkillRepository skillRepository;
@@ -112,9 +112,9 @@ public class ConsultantService {
     }
 
 
-    public Consultant addTechnology(final String consultantId, final String technologyId, final Integer yearsExperience) {
-        log.info("[ConsultantService] - ADD_TECHNOLOGY: consultantId: {}, technologyId: {}, yearsExperience: {}",
-                consultantId, technologyId, yearsExperience);
+    public Consultant addTechnology(final String consultantId, final String technologyId, final Integer skillYearsOfExperience) {
+        log.info("[ConsultantService] - ADD_TECHNOLOGY: consultantId: {}, technologyId: {}, skillYearsOfExperience: {}",
+                consultantId, technologyId, skillYearsOfExperience);
 
         final Consultant consultant = consultantRepository.findById(consultantId)
                 .orElseThrow(() -> new IllegalArgumentException("Consultant not found with id: " + consultantId));
@@ -124,15 +124,15 @@ public class ConsultantService {
 
         final Knows knows = new Knows();
         knows.setTechnology(technology);
-        knows.setYearsExperience(yearsExperience);
+        knows.setSkillYearsOfExperience(skillYearsOfExperience);
 
         consultant.getTechnologies().add(knows);
         return consultantRepository.save(consultant);
     }
 
-    public Consultant addSkill(final String consultantId, final String skillId, final Integer yearsExperience) {
-        log.info("[ConsultantService] - ADD_SKILL: consultantId: {}, skillId: {}, yearsExperience: {}",
-                consultantId, skillId, yearsExperience);
+    public Consultant addSkill(final String consultantId, final String skillId, final Integer skillYearsOfExperience) {
+        log.info("[ConsultantService] - ADD_SKILL: consultantId: {}, skillId: {}, skillYearsOfExperience: {}",
+                consultantId, skillId, skillYearsOfExperience);
 
         final Consultant consultant = consultantRepository.findById(consultantId)
                 .orElseThrow(() -> new IllegalArgumentException("Consultant not found with id: " + consultantId));
@@ -142,7 +142,7 @@ public class ConsultantService {
 
         final HasSkill hasSkill = new HasSkill();
         hasSkill.setSkill(skill);
-        hasSkill.setYearsExperience(yearsExperience);
+        hasSkill.setSkillYearsOfExperience(skillYearsOfExperience);
 
         consultant.getSkills().add(hasSkill);
         return consultantRepository.save(consultant);

@@ -176,7 +176,7 @@ public class DataLoader {
                                 if (skill != null) {
                                     HasSkill hasSkill = new HasSkill();
                                     hasSkill.setSkill(skill);
-                                    hasSkill.setYearsExperience(yearsExp);
+                                    hasSkill.setSkillYearsOfExperience(yearsExp);
                                     consultant.getSkills().add(hasSkill);
                                 }
                             }
@@ -195,7 +195,7 @@ public class DataLoader {
                                 if (technology != null) {
                                     Knows knows = new Knows();
                                     knows.setTechnology(technology);
-                                    knows.setYearsExperience(yearsExp);
+                                    knows.setSkillYearsOfExperience(yearsExp);
                                     consultant.getTechnologies().add(knows);
                                 }
                             }

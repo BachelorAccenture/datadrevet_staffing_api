@@ -21,7 +21,6 @@ public class Knows {
     @TargetNode
     private Technology technology;
 
-
-    @Property("yearsExperience")
-    private Integer yearsExperience;
+    @Property("skillYearsOfExperience")
+    private Integer skillYearsOfExperience;
 }

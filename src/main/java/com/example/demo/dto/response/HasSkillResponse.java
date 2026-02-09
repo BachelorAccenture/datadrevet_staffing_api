@@ -9,6 +9,5 @@ public class HasSkillResponse {
 
     private final String skillId;
     private final String skillName;
-    private final Integer yearsExperience;
+    private final Integer skillYearsOfExperience;
 }
-

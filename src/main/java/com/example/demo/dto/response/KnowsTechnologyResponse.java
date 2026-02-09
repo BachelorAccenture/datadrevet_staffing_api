@@ -1,8 +1,13 @@
 package com.example.demo.dto.response;
 
 import lombok.Builder;
+import lombok.Getter;
 
+@Getter
 @Builder(setterPrefix = "with")
-public record KnowsTechnologyResponse(String technologyId, String technologyName, Integer yearsExperience) {
+public class KnowsTechnologyResponse {
 
+    private final String technologyId;
+    private final String technologyName;
+    private final Integer skillYearsOfExperience;
 }

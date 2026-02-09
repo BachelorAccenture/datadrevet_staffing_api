@@ -7,5 +7,5 @@ public record AddTechnologyRequest(
         @NotBlank(message = "Technology ID is required")
         String technologyId,
         @Min(value = 0, message = "Years of experience must be non-negative")
-        Integer yearsExperience
+        Integer skillYearsOfExperience
 ) {}
