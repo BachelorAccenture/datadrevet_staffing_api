@@ -3,7 +3,6 @@ package com.example.demo.repository;
 import com.example.demo.config.AbstractNeo4jTest;
 import com.example.demo.model.*;
 import com.example.demo.model.relationship.RequiresSkill;
-import com.example.demo.model.relationship.RequiresTechnology;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;

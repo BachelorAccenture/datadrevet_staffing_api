@@ -3,7 +3,6 @@ package com.example.demo.config;
 import com.example.demo.model.*;
 import com.example.demo.model.relationship.HasSkill;
 import com.example.demo.model.relationship.RequiresSkill;
-import com.example.demo.model.relationship.RequiresTechnology;
 import com.example.demo.repository.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -231,30 +230,6 @@ public class DataLoader {
                             }
                         }
                     }
-
-                    // Parse required technologies (format: TechName:MinLevel:IsMandatory;...)
-                    String technologiesStr = parts[4].trim().replace("\"", "");
-                    if (!technologiesStr.isEmpty()) {
-                        for (String techEntry : technologiesStr.split(";")) {
-                            String[] techParts = techEntry.split(":");
-                            if (techParts.length >= 3) {
-                                String techName = techParts[0].trim();
-                                ProficiencyLevel minLevel = ProficiencyLevel.valueOf(techParts[1].trim());
-                                Boolean isMandatory = Boolean.parseBoolean(techParts[2].trim());
-
-                                Skill skill = skillMap.get(techName);
-                                if (skill != null) {
-                                    RequiresTechnology requiresTechnology = new RequiresTechnology();
-                                    requiresTechnology.setSkill(skill);
-                                    requiresTechnology.setMinLevel(minLevel);
-                                    requiresTechnology.setIsMandatory(isMandatory);
-                                    project.getRequiredTechnologies().add(requiresTechnology);
-                                }
-                            }
-                        }
-                    }
-
-
                     projectRepository.save(project);
                 }
             }

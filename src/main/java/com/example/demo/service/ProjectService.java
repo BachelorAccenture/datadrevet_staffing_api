@@ -5,7 +5,6 @@ import com.example.demo.model.ProficiencyLevel;
 import com.example.demo.model.Project;
 import com.example.demo.model.Skill;
 import com.example.demo.model.relationship.RequiresSkill;
-import com.example.demo.model.relationship.RequiresTechnology;
 import com.example.demo.repository.CompanyRepository;
 import com.example.demo.repository.ProjectRepository;
 import com.example.demo.repository.SkillRepository;
@@ -107,26 +106,6 @@ public class ProjectService {
         requiresSkill.setIsMandatory(isMandatory);
 
         project.getRequiredSkills().add(requiresSkill);
-        return projectRepository.save(project);
-    }
-
-    public Project addRequiredTechnology(final String projectId, final String skillId,
-                                         final ProficiencyLevel minLevel, final Boolean isMandatory) {
-        log.info("[ProjectService] - ADD_REQUIRED_TECHNOLOGY: projectId: {}, skillId: {}, minLevel: {}, mandatory: {}",
-                projectId, skillId, minLevel, isMandatory);
-
-        final Project project = projectRepository.findById(projectId)
-                .orElseThrow(() -> new IllegalArgumentException("Project not found with id: " + projectId));
-
-        final Skill skill = skillRepository.findById(skillId)
-                .orElseThrow(() -> new IllegalArgumentException("Skill not found with id: " + skillId));
-
-        final RequiresTechnology requiresTechnology = new RequiresTechnology();
-        requiresTechnology.setSkill(skill);
-        requiresTechnology.setMinLevel(minLevel);
-        requiresTechnology.setIsMandatory(isMandatory);
-
-        project.getRequiredTechnologies().add(requiresTechnology);
         return projectRepository.save(project);
     }
 
