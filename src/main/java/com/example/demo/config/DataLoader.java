@@ -29,6 +29,28 @@ public class DataLoader {
     private final SkillRepository skillRepository;
     private final ProjectRepository projectRepository;
 
+    /**
+     * Strictly parses an integer from a string.
+     * Throws IllegalArgumentException with a clear error message if parsing fails.
+     * This ensures that CSV files must be correct - no invalid data is accepted.
+     */
+    private static Integer strictParseInt(String value, String fieldName, String context) {
+        if (value == null || value.trim().isEmpty()) {
+            throw new IllegalArgumentException(
+                String.format("[DataLoader] - FEIL: Tomt felt '%s' i %s. CSV-filen må inneholde en gyldig tallverdi.",
+                    fieldName, context)
+            );
+        }
+        try {
+            return Integer.parseInt(value.trim());
+        } catch (NumberFormatException e) {
+            throw new IllegalArgumentException(
+                String.format("[DataLoader] - FEIL: Ugyldig tallverdi '%s' for felt '%s' i %s. Forventet et heltall, men fikk tekst. Vennligst korriger CSV-filen.",
+                    value, fieldName, context)
+            );
+        }
+    }
+
     @Bean
     @Profile("dev")
     public CommandLineRunner loadData() {
@@ -190,13 +212,22 @@ public class DataLoader {
                 String[] skillParts = skillEntry.split(":");
                 if (skillParts.length >= 2) {
                     String skillName = skillParts[0].trim();
-                    Integer yearsExp = Integer.parseInt(skillParts[1].trim());
-                    Skill skill = skillMap.get(skillName);
-                    if (skill != null) {
-                        HasSkill hasSkill = new HasSkill();
-                        hasSkill.setSkill(skill);
-                        hasSkill.setSkillYearsOfExperience(yearsExp);
-                        consultant.getSkills().add(hasSkill);
+                    try {
+                        Integer yearsExp = strictParseInt(
+                            skillParts[1],
+                            "yearsOfExperience",
+                            String.format("skill '%s' for konsulent '%s'", skillName, consultant.getName())
+                        );
+                        Skill skill = skillMap.get(skillName);
+                        if (skill != null) {
+                            HasSkill hasSkill = new HasSkill();
+                            hasSkill.setSkill(skill);
+                            hasSkill.setSkillYearsOfExperience(yearsExp);
+                            consultant.getSkills().add(hasSkill);
+                        }
+                    } catch (IllegalArgumentException e) {
+                        log.error(e.getMessage());
+                        throw e; // Stop hele datalasten
                     }
                 }
             }
@@ -208,7 +239,19 @@ public class DataLoader {
         consultant.setName(parts[0].trim());
         consultant.setEmail(parts[1].trim());
         consultant.setRole(parts[2].trim());
-        consultant.setYearsOfExperience(Integer.parseInt(parts[3].trim()));
+
+        try {
+            Integer yearsExp = strictParseInt(
+                parts[3],
+                "yearsOfExperience",
+                String.format("konsulent '%s' (%s)", parts[0].trim(), parts[1].trim())
+            );
+            consultant.setYearsOfExperience(yearsExp);
+        } catch (IllegalArgumentException e) {
+            log.error(e.getMessage());
+            throw e; // Stop hele datalasten
+        }
+
         consultant.setAvailability(Boolean.parseBoolean(parts[4].trim()));
         consultant.setWantsNewProject(Boolean.parseBoolean(parts[5].trim()));
         consultant.setOpenToRemote(Boolean.parseBoolean(parts[6].trim()));
@@ -256,16 +299,26 @@ public class DataLoader {
                             String[] skillParts = skillEntry.split(":");
                             if (skillParts.length >= 3) {
                                 String skillName = skillParts[0].trim();
-                                Integer minYears = Integer.parseInt(skillParts[1].trim());
-                                Boolean isMandatory = Boolean.parseBoolean(skillParts[2].trim());
 
-                                Skill skill = skillMap.get(skillName);
-                                if (skill != null) {
-                                    RequiresSkill requiresSkill = new RequiresSkill();
-                                    requiresSkill.setSkill(skill);
-                                    requiresSkill.setMinYearsOfExperience(minYears);
-                                    requiresSkill.setIsMandatory(isMandatory);
-                                    project.getRequiredSkills().add(requiresSkill);
+                                try {
+                                    Integer minYears = strictParseInt(
+                                        skillParts[1],
+                                        "minYearsOfExperience",
+                                        String.format("required skill '%s' for prosjekt '%s'", skillName, parts[0].trim())
+                                    );
+                                    Boolean isMandatory = Boolean.parseBoolean(skillParts[2].trim());
+
+                                    Skill skill = skillMap.get(skillName);
+                                    if (skill != null) {
+                                        RequiresSkill requiresSkill = new RequiresSkill();
+                                        requiresSkill.setSkill(skill);
+                                        requiresSkill.setMinYearsOfExperience(minYears);
+                                        requiresSkill.setIsMandatory(isMandatory);
+                                        project.getRequiredSkills().add(requiresSkill);
+                                    }
+                                } catch (IllegalArgumentException e) {
+                                    log.error(e.getMessage());
+                                    throw e; // Stop hele datalasten
                                 }
                             }
                         }
@@ -279,8 +332,18 @@ public class DataLoader {
                             String[] roleParts = roleEntry.split(":");
                             if (roleParts.length >= 2) {
                                 String roleName = roleParts[0].trim();
-                                Integer count = Integer.parseInt(roleParts[1].trim());
-                                roles.put(roleName, count);
+
+                                try {
+                                    Integer count = strictParseInt(
+                                        roleParts[1],
+                                        "count",
+                                        String.format("rolle '%s' for prosjekt '%s'", roleName, parts[0].trim())
+                                    );
+                                    roles.put(roleName, count);
+                                } catch (IllegalArgumentException e) {
+                                    log.error(e.getMessage());
+                                    throw e; // Stop hele datalasten
+                                }
                             }
                         }
                         project.setRoles(roles);
