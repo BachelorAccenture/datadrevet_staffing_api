@@ -26,12 +26,6 @@ public interface ProjectRepository extends Neo4jRepository<Project, String> {
         """)
     List<Project> findByRequiredSkillNames(@Param("skillNames") List<String> skillNames);
 
-    @Query("""
-        MATCH (p:Project)-[rt:REQUIRES_TECHNOLOGY]->(t:Technology)
-        WHERE t.name IN $technologyNames
-        RETURN p, collect(rt), collect(t)
-        """)
-    List<Project> findByRequiredTechnologyNames(@Param("technologyNames") List<String> technologyNames);
 
     boolean existsByName(String name);
 }

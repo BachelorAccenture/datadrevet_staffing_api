@@ -1,7 +1,6 @@
 package com.example.demo.controller;
 
 import com.example.demo.dto.request.AddRequiredSkillRequest;
-import com.example.demo.dto.request.AddRequiredTechnologyRequest;
 import com.example.demo.dto.request.CreateProjectRequest;
 import com.example.demo.dto.response.ProjectResponse;
 import com.example.demo.exception.ResourceNotFoundException;
@@ -86,13 +85,6 @@ public class ProjectController {
         return ResponseEntity.ok(ProjectMapper.toResponseList(projects));
     }
 
-    @GetMapping("/by-required-technologies")
-    public ResponseEntity<List<ProjectResponse>> getByRequiredTechnologies(
-            @RequestParam final List<String> technologyNames) {
-        log.info("[ProjectController] - GET_BY_REQUIRED_TECHNOLOGIES: technologies: {}", technologyNames);
-        final List<Project> projects = projectService.findByRequiredTechnologyNames(technologyNames);
-        return ResponseEntity.ok(ProjectMapper.toResponseList(projects));
-    }
 
     @PutMapping("/{id}")
     public ResponseEntity<ProjectResponse> update(
@@ -126,7 +118,7 @@ public class ProjectController {
             @Valid @RequestBody final AddRequiredSkillRequest request) {
         log.info("[ProjectController] - ADD_REQUIRED_SKILL: projectId: {}, skillId: {}", id, request.skillId());
         final Boolean isMandatory = request.isMandatory() != null ? request.isMandatory() : false;
-        final Project project = projectService.addRequiredSkill(id, request.skillId(), request.minLevel(), isMandatory);
+        final Project project = projectService.addRequiredSkill(id, request.skillId(), request.minYearsOfExperience(), isMandatory);
         return ResponseEntity.ok(ProjectMapper.toResponse(project));
     }
 }

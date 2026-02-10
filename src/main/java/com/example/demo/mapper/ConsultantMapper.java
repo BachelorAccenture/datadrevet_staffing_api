@@ -1,9 +1,11 @@
 package com.example.demo.mapper;
 
 import com.example.demo.dto.request.CreateConsultantRequest;
+import com.example.demo.dto.response.AssignedToResponse;
 import com.example.demo.dto.response.ConsultantResponse;
 import com.example.demo.dto.response.HasSkillResponse;
 import com.example.demo.model.Consultant;
+import com.example.demo.model.relationship.AssignedTo;
 import com.example.demo.model.relationship.HasSkill;
 
 import java.util.Collections;
@@ -33,6 +35,7 @@ public final class ConsultantMapper {
                 .withOpenToRemote(consultant.getOpenToRemote())
                 .withPreferredRegions(consultant.getPreferredRegions())
                 .withSkills(mapSkills(consultant.getSkills()))
+                .withProjectAssignments(mapProjectAssignments(consultant.getProjectAssignments()))
                 .build();
     }
 
@@ -76,6 +79,25 @@ public final class ConsultantMapper {
                 .withSkillId(hasSkill.getSkill() != null ? hasSkill.getSkill().getId() : null)
                 .withSkillName(hasSkill.getSkill() != null ? hasSkill.getSkill().getName() : null)
                 .withSkillYearsOfExperience(hasSkill.getSkillYearsOfExperience())
+                .build();
+    }
+
+    private static Set<AssignedToResponse> mapProjectAssignments(final Set<AssignedTo> assignments) {
+        if (assignments == null || assignments.isEmpty()) {
+            return Collections.emptySet();
+        }
+        return assignments.stream()
+                .map(ConsultantMapper::mapAssignedTo)
+                .collect(Collectors.toSet());
+    }
+
+    private static AssignedToResponse mapAssignedTo(final AssignedTo assignedTo) {
+        return AssignedToResponse.builder()
+                .withProjectId(assignedTo.getProject() != null ? assignedTo.getProject().getId() : null)
+                .withProjectName(assignedTo.getProject() != null ? assignedTo.getProject().getName() : null)
+                .withRole(assignedTo.getRole())
+                .withAllocationPercent(assignedTo.getAllocationPercent())
+                .withIsActive(assignedTo.getIsActive())
                 .build();
     }
 }

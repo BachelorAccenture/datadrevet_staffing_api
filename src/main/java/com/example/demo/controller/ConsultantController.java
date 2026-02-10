@@ -68,13 +68,12 @@ public class ConsultantController {
     @GetMapping("/search")
     public ResponseEntity<List<ConsultantResponse>> search(
             @RequestParam(required = false) final List<String> skillNames,
-            @RequestParam(required = false) final List<String> technologyNames,
             @RequestParam(required = false) final String role,
             @RequestParam(required = false) final Integer minYearsOfExperience) {
-        log.info("[ConsultantController] - SEARCH: skills: {}, technologies: {}, role: {}, minYears: {}",
-                skillNames, technologyNames, role, minYearsOfExperience);
+        log.info("[ConsultantController] - SEARCH: skills: {}, role: {}, minYears: {}",
+                skillNames, role, minYearsOfExperience);
         final List<Consultant> consultants = consultantService.searchConsultants(
-                skillNames, technologyNames, role, minYearsOfExperience);
+                skillNames, role, minYearsOfExperience);
         return ResponseEntity.ok(ConsultantMapper.toResponseList(consultants));
     }
 

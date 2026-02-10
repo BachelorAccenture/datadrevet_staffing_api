@@ -99,7 +99,7 @@ class ProjectRepositoryTest extends AbstractNeo4jTest {
 
         RequiresSkill requiresSkill = new RequiresSkill();
         requiresSkill.setSkill(javaSkill);
-        requiresSkill.setMinLevel(ProficiencyLevel.ADVANCED);
+        requiresSkill.setMinYearsOfExperience(3);
         requiresSkill.setIsMandatory(true);
         testProject.getRequiredSkills().add(requiresSkill);
         projectRepository.save(testProject);
@@ -126,12 +126,12 @@ class ProjectRepositoryTest extends AbstractNeo4jTest {
 
         RequiresSkill requiresJava = new RequiresSkill();
         requiresJava.setSkill(javaSkill);
-        requiresJava.setMinLevel(ProficiencyLevel.ADVANCED);
+        requiresJava.setMinYearsOfExperience(3);
         requiresJava.setIsMandatory(true);
 
         RequiresSkill requiresPython = new RequiresSkill();
         requiresPython.setSkill(pythonSkill);
-        requiresPython.setMinLevel(ProficiencyLevel.INTERMEDIATE);
+        requiresPython.setMinYearsOfExperience(2);
         requiresPython.setIsMandatory(false);
 
         testProject.getRequiredSkills().add(requiresJava);
