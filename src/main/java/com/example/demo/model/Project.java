@@ -1,7 +1,6 @@
 package com.example.demo.model;
 
 import com.example.demo.model.relationship.RequiresSkill;
-import com.example.demo.model.relationship.RequiresTechnology;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.data.neo4j.core.schema.GeneratedValue;
@@ -40,7 +39,4 @@ public class Project {
 
     @Relationship(type = "REQUIRES_SKILL", direction = Relationship.Direction.OUTGOING)
     private Set<RequiresSkill> requiredSkills = new HashSet<>();
-
-    @Relationship(type = "REQUIRES_TECHNOLOGY", direction = Relationship.Direction.OUTGOING)
-    private Set<RequiresTechnology> requiredTechnologies = new HashSet<>();
 }

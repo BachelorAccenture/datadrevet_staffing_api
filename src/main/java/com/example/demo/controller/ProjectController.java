@@ -129,16 +129,4 @@ public class ProjectController {
         final Project project = projectService.addRequiredSkill(id, request.skillId(), request.minLevel(), isMandatory);
         return ResponseEntity.ok(ProjectMapper.toResponse(project));
     }
-
-    @PostMapping("/{id}/required-technologies")
-    public ResponseEntity<ProjectResponse> addRequiredTechnology(
-            @PathVariable final String id,
-            @Valid @RequestBody final AddRequiredTechnologyRequest request) {
-        log.info("[ProjectController] - ADD_REQUIRED_TECHNOLOGY: projectId: {}, technologyId: {}",
-                id, request.technologyId());
-        final Boolean isMandatory = request.isMandatory() != null ? request.isMandatory() : false;
-        final Project project = projectService.addRequiredTechnology(
-                id, request.technologyId(), request.minLevel(), isMandatory);
-        return ResponseEntity.ok(ProjectMapper.toResponse(project));
-    }
 }
