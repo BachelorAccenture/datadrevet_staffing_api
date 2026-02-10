@@ -11,4 +11,15 @@ React,ReactJS;React.js
 JavaScript,JS;ECMAScript;ES6
 Python,Python3;Python 3
 Java,Java SE;Java EE;JDK
-
+Neo4j,Neo4j Graph Database
+PostgreSQL,Postgres;PSQL
+MongoDB,Mongo
+Docker,Docker Engine
+Kubernetes,K8s;K8
+AWS,Amazon Web Services;Amazon AWS
+Azure,Microsoft Azure
+Git,Git SCM
+Jenkins,Jenkins CI
+Redis,
+Apache Kafka,Kafka
+Elasticsearch,Elastic Search

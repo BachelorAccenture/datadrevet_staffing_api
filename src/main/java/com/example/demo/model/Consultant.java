@@ -2,7 +2,6 @@ package com.example.demo.model;
 
 import com.example.demo.model.relationship.AssignedTo;
 import com.example.demo.model.relationship.HasSkill;
-import com.example.demo.model.relationship.Knows;
 import com.example.demo.model.relationship.WorkedFor;
 import lombok.Getter;
 import lombok.Setter;
@@ -57,8 +56,6 @@ public class Consultant {
     @Relationship(type = "HAS_SKILL", direction = Relationship.Direction.OUTGOING)
     private Set<HasSkill> skills = new HashSet<>();
 
-    @Relationship(type = "KNOWS", direction = Relationship.Direction.OUTGOING)
-    private Set<Knows> technologies = new HashSet<>();
 
     @Relationship(type = "ASSIGNED_TO", direction = Relationship.Direction.OUTGOING)
     private Set<AssignedTo> projectAssignments = new HashSet<>();

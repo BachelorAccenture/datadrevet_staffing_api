@@ -1,14 +1,10 @@
 package com.example.demo.service;
 
 import com.example.demo.model.Consultant;
-import com.example.demo.model.ProficiencyLevel;
 import com.example.demo.model.Skill;
-import com.example.demo.model.Technology;
 import com.example.demo.model.relationship.HasSkill;
-import com.example.demo.model.relationship.Knows;
 import com.example.demo.repository.ConsultantRepository;
 import com.example.demo.repository.SkillRepository;
-import com.example.demo.repository.TechnologyRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -40,9 +36,6 @@ class ConsultantServiceTest {
     @Mock
     private SkillRepository skillRepository;
 
-    @Mock
-    private TechnologyRepository technologyRepository;
-
     @InjectMocks
     private ConsultantService consultantService;
 
@@ -51,7 +44,6 @@ class ConsultantServiceTest {
 
     private Consultant testConsultant;
     private Skill testSkill;
-    private Technology testTechnology;
 
     @BeforeEach
     void setUp() {
@@ -71,11 +63,6 @@ class ConsultantServiceTest {
         testSkill.setId("skill-123");
         testSkill.setName("Java");
         testSkill.setSynonyms(List.of("JDK", "Java SE"));
-
-        testTechnology = new Technology();
-        testTechnology.setId("tech-123");
-        testTechnology.setName("Neo4j");
-        testTechnology.setSynonyms(List.of("Neo4j Graph Database"));
     }
 
     @Nested
@@ -266,25 +253,6 @@ class ConsultantServiceTest {
     }
 
     @Nested
-    @DisplayName("findByTechnologyNames")
-    class FindByTechnologyNames {
-
-        @Test
-        void findByTechnologyNames_withMatchingTechnologies_returnsConsultants() {
-            // given
-            final List<String> technologyNames = List.of("Neo4j", "PostgreSQL");
-            when(consultantRepository.findByTechnologyNames(technologyNames)).thenReturn(List.of(testConsultant));
-
-            // when
-            final List<Consultant> result = consultantService.findByTechnologyNames(technologyNames);
-
-            // then
-            assertThat(result).hasSize(1);
-            verify(consultantRepository).findByTechnologyNames(technologyNames);
-        }
-    }
-
-    @Nested
     @DisplayName("findAvailableWithMinExperience")
     class FindAvailableWithMinExperience {
 
@@ -395,7 +363,7 @@ class ConsultantServiceTest {
             when(consultantRepository.save(any(Consultant.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
             // when
-            final Consultant result = consultantService.addSkill("consultant-123", "skill-123", ProficiencyLevel.ADVANCED);
+            final Consultant result = consultantService.addSkill("consultant-123", "skill-123", 5);
 
             // then
             verify(consultantRepository).save(consultantCaptor.capture());
@@ -404,7 +372,7 @@ class ConsultantServiceTest {
             assertThat(savedConsultant.getSkills()).hasSize(1);
             final HasSkill addedSkill = savedConsultant.getSkills().iterator().next();
             assertThat(addedSkill.getSkill().getName()).isEqualTo("Java");
-            assertThat(addedSkill.getLevel()).isEqualTo(ProficiencyLevel.ADVANCED);
+            assertThat(addedSkill.getSkillYearsOfExperience()).isEqualTo(5);
         }
 
         @Test
@@ -413,7 +381,7 @@ class ConsultantServiceTest {
             when(consultantRepository.findById("non-existing")).thenReturn(Optional.empty());
 
             // when / then
-            assertThatThrownBy(() -> consultantService.addSkill("non-existing", "skill-123", ProficiencyLevel.BEGINNER))
+            assertThatThrownBy(() -> consultantService.addSkill("non-existing", "skill-123", 2))
                     .isInstanceOf(IllegalArgumentException.class)
                     .hasMessageContaining("Consultant not found with id: non-existing");
 
@@ -428,7 +396,7 @@ class ConsultantServiceTest {
             when(skillRepository.findById("non-existing")).thenReturn(Optional.empty());
 
             // when / then
-            assertThatThrownBy(() -> consultantService.addSkill("consultant-123", "non-existing", ProficiencyLevel.BEGINNER))
+            assertThatThrownBy(() -> consultantService.addSkill("consultant-123", "non-existing", 1))
                     .isInstanceOf(IllegalArgumentException.class)
                     .hasMessageContaining("Skill not found with id: non-existing");
 
@@ -436,94 +404,22 @@ class ConsultantServiceTest {
         }
 
         @Test
-        void addSkill_withAllProficiencyLevels_setsCorrectLevel() {
+        void addSkill_withYearsExperience_setsCorrectValue() {
             // given
             when(consultantRepository.findById("consultant-123")).thenReturn(Optional.of(testConsultant));
             when(skillRepository.findById("skill-123")).thenReturn(Optional.of(testSkill));
             when(consultantRepository.save(any(Consultant.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
             // when
-            consultantService.addSkill("consultant-123", "skill-123", ProficiencyLevel.EXPERT);
+            consultantService.addSkill("consultant-123", "skill-123", 10);
 
             // then
             verify(consultantRepository).save(consultantCaptor.capture());
             final HasSkill addedSkill = consultantCaptor.getValue().getSkills().iterator().next();
-            assertThat(addedSkill.getLevel()).isEqualTo(ProficiencyLevel.EXPERT);
+            assertThat(addedSkill.getSkillYearsOfExperience()).isEqualTo(10);
         }
     }
 
-    @Nested
-    @DisplayName("addTechnology")
-    class AddTechnology {
-
-        @Test
-        void addTechnology_withValidIds_addsTechnologyToConsultant() {
-            // given
-            when(consultantRepository.findById("consultant-123")).thenReturn(Optional.of(testConsultant));
-            when(technologyRepository.findById("tech-123")).thenReturn(Optional.of(testTechnology));
-            when(consultantRepository.save(any(Consultant.class))).thenAnswer(invocation -> invocation.getArgument(0));
-
-            // when
-            final Consultant result = consultantService.addTechnology(
-                    "consultant-123", "tech-123", ProficiencyLevel.INTERMEDIATE, 3);
-
-            // then
-            verify(consultantRepository).save(consultantCaptor.capture());
-            final Consultant savedConsultant = consultantCaptor.getValue();
-
-            assertThat(savedConsultant.getTechnologies()).hasSize(1);
-            final Knows addedTech = savedConsultant.getTechnologies().iterator().next();
-            assertThat(addedTech.getTechnology().getName()).isEqualTo("Neo4j");
-            assertThat(addedTech.getLevel()).isEqualTo(ProficiencyLevel.INTERMEDIATE);
-            assertThat(addedTech.getYearsExperience()).isEqualTo(3);
-        }
-
-        @Test
-        void addTechnology_withNonExistingConsultant_throwsException() {
-            // given
-            when(consultantRepository.findById("non-existing")).thenReturn(Optional.empty());
-
-            // when / then
-            assertThatThrownBy(() -> consultantService.addTechnology(
-                    "non-existing", "tech-123", ProficiencyLevel.BEGINNER, 1))
-                    .isInstanceOf(IllegalArgumentException.class)
-                    .hasMessageContaining("Consultant not found with id: non-existing");
-
-            verify(technologyRepository, never()).findById(any());
-            verify(consultantRepository, never()).save(any());
-        }
-
-        @Test
-        void addTechnology_withNonExistingTechnology_throwsException() {
-            // given
-            when(consultantRepository.findById("consultant-123")).thenReturn(Optional.of(testConsultant));
-            when(technologyRepository.findById("non-existing")).thenReturn(Optional.empty());
-
-            // when / then
-            assertThatThrownBy(() -> consultantService.addTechnology(
-                    "consultant-123", "non-existing", ProficiencyLevel.BEGINNER, 1))
-                    .isInstanceOf(IllegalArgumentException.class)
-                    .hasMessageContaining("Technology not found with id: non-existing");
-
-            verify(consultantRepository, never()).save(any());
-        }
-
-        @Test
-        void addTechnology_withNullYearsExperience_savesWithNull() {
-            // given
-            when(consultantRepository.findById("consultant-123")).thenReturn(Optional.of(testConsultant));
-            when(technologyRepository.findById("tech-123")).thenReturn(Optional.of(testTechnology));
-            when(consultantRepository.save(any(Consultant.class))).thenAnswer(invocation -> invocation.getArgument(0));
-
-            // when
-            consultantService.addTechnology("consultant-123", "tech-123", ProficiencyLevel.BEGINNER, null);
-
-            // then
-            verify(consultantRepository).save(consultantCaptor.capture());
-            final Knows addedTech = consultantCaptor.getValue().getTechnologies().iterator().next();
-            assertThat(addedTech.getYearsExperience()).isNull();
-        }
-    }
 
     @Nested
     @DisplayName("existsByEmail")

@@ -2,7 +2,6 @@ package com.example.demo.config;
 
 import com.example.demo.model.*;
 import com.example.demo.model.relationship.HasSkill;
-import com.example.demo.model.relationship.Knows;
 import com.example.demo.model.relationship.RequiresSkill;
 import com.example.demo.model.relationship.RequiresTechnology;
 import com.example.demo.repository.*;
@@ -28,7 +27,6 @@ public class DataLoader {
     private final CompanyRepository companyRepository;
     private final ConsultantRepository consultantRepository;
     private final SkillRepository skillRepository;
-    private final TechnologyRepository technologyRepository;
     private final ProjectRepository projectRepository;
 
     @Bean
@@ -37,31 +35,29 @@ public class DataLoader {
         return args -> {
             log.info("[DataLoader] - Starting data initialization from CSV files...");
 
-            // Check if data already exists
-            if (consultantRepository.count() > 0) {
-                log.info("[DataLoader] - Database already contains data. Skipping initialization.");
-                return;
-            }
-
             try {
+                // Clear existing data
+                log.info("[DataLoader] - Clearing existing data...");
+                projectRepository.deleteAll();
+                consultantRepository.deleteAll();
+                companyRepository.deleteAll();
+                skillRepository.deleteAll();
+                log.info("[DataLoader] - Existing data cleared successfully.");
+
                 // Load skills from CSV
                 Map<String, Skill> skillMap = loadSkills();
                 log.info("[DataLoader] - Loaded {} skills", skillMap.size());
-
-                // Load technologies from CSV
-                Map<String, Technology> technologyMap = loadTechnologies();
-                log.info("[DataLoader] - Loaded {} technologies", technologyMap.size());
 
                 // Load companies from CSV
                 Map<String, Company> companyMap = loadCompanies();
                 log.info("[DataLoader] - Loaded {} companies", companyMap.size());
 
                 // Load consultants from CSV
-                loadConsultants(skillMap, technologyMap);
+                loadConsultants(skillMap);
                 log.info("[DataLoader] - Loaded {} consultants", consultantRepository.count());
 
                 // Load projects from CSV
-                loadProjects(companyMap, skillMap, technologyMap);
+                loadProjects(companyMap, skillMap);
                 log.info("[DataLoader] - Loaded {} projects", projectRepository.count());
 
                 log.info("[DataLoader] - Data initialization completed successfully!");
@@ -77,7 +73,8 @@ public class DataLoader {
         ClassPathResource resource = new ClassPathResource("data/skills.csv");
 
         try (BufferedReader reader = new BufferedReader(new InputStreamReader(resource.getInputStream()))) {
-            String line = reader.readLine(); // Skip header
+            reader.readLine(); // Skip header
+            String line;
 
             while ((line = reader.readLine()) != null) {
                 String[] parts = line.split(",", -1);
@@ -98,38 +95,14 @@ public class DataLoader {
         return skillMap;
     }
 
-    private Map<String, Technology> loadTechnologies() throws IOException {
-        Map<String, Technology> technologyMap = new HashMap<>();
-        ClassPathResource resource = new ClassPathResource("data/technologies.csv");
-
-        try (BufferedReader reader = new BufferedReader(new InputStreamReader(resource.getInputStream()))) {
-            String line = reader.readLine(); // Skip header
-
-            while ((line = reader.readLine()) != null) {
-                String[] parts = line.split(",", -1);
-                if (parts.length >= 2) {
-                    String name = parts[0].trim();
-                    List<String> synonyms = parts[1].isEmpty() ? new ArrayList<>() :
-                                           Arrays.asList(parts[1].split(";"));
-
-                    Technology technology = new Technology();
-                    technology.setName(name);
-                    technology.setSynonyms(synonyms);
-                    technology = technologyRepository.save(technology);
-                    technologyMap.put(name, technology);
-                }
-            }
-        }
-
-        return technologyMap;
-    }
 
     private Map<String, Company> loadCompanies() throws IOException {
         Map<String, Company> companyMap = new HashMap<>();
         ClassPathResource resource = new ClassPathResource("data/companies.csv");
 
         try (BufferedReader reader = new BufferedReader(new InputStreamReader(resource.getInputStream()))) {
-            String line = reader.readLine(); // Skip header
+            reader.readLine(); // Skip header
+            String line;
 
             while ((line = reader.readLine()) != null) {
                 String[] parts = line.split(",", -1);
@@ -149,60 +122,44 @@ public class DataLoader {
         return companyMap;
     }
 
-    private void loadConsultants(Map<String, Skill> skillMap, Map<String, Technology> technologyMap) throws IOException {
+    private void loadConsultants(Map<String, Skill> skillMap) throws IOException {
         ClassPathResource resource = new ClassPathResource("data/consultants.csv");
 
         try (BufferedReader reader = new BufferedReader(new InputStreamReader(resource.getInputStream()))) {
-            String line = reader.readLine(); // Skip header
+            reader.readLine(); // Skip header
+            String line;
 
             while ((line = reader.readLine()) != null) {
                 String[] parts = line.split(",", -1);
                 if (parts.length >= 11) {
                     Consultant consultant = getConsultant(parts);
 
-                    // Parse skills (format: SkillName:Level;SkillName:Level)
-                    String skillsStr = parts[9].trim().replace("\"", "");
-                    if (!skillsStr.isEmpty()) {
-                        for (String skillEntry : skillsStr.split(";")) {
-                            String[] skillParts = skillEntry.split(":");
-                            if (skillParts.length >= 2) {
-                                String skillName = skillParts[0].trim();
-                                ProficiencyLevel level = ProficiencyLevel.valueOf(skillParts[1].trim());
-
-                                Skill skill = skillMap.get(skillName);
-                                if (skill != null) {
-                                    HasSkill hasSkill = new HasSkill();
-                                    hasSkill.setSkill(skill);
-                                    hasSkill.setLevel(level);
-                                    consultant.getSkills().add(hasSkill);
-                                }
-                            }
-                        }
-                    }
-
-                    // Parse technologies (format: TechName:Level:YearsExp;TechName:Level:YearsExp)
-                    String technologiesStr = parts[10].trim().replace("\"", "");
-                    if (!technologiesStr.isEmpty()) {
-                        for (String techEntry : technologiesStr.split(";")) {
-                            String[] techParts = techEntry.split(":");
-                            if (techParts.length >= 3) {
-                                String techName = techParts[0].trim();
-                                ProficiencyLevel level = ProficiencyLevel.valueOf(techParts[1].trim());
-                                Integer yearsExp = Integer.parseInt(techParts[2].trim());
-
-                                Technology technology = technologyMap.get(techName);
-                                if (technology != null) {
-                                    Knows knows = new Knows();
-                                    knows.setTechnology(technology);
-                                    knows.setLevel(level);
-                                    knows.setYearsExperience(yearsExp);
-                                    consultant.getTechnologies().add(knows);
-                                }
-                            }
-                        }
-                    }
+                    // Parse and add skills from both columns
+                    addSkillsToConsultant(consultant, parts[9], skillMap);
+                    addSkillsToConsultant(consultant, parts[10], skillMap);
 
                     consultantRepository.save(consultant);
+                }
+            }
+        }
+    }
+
+
+    private void addSkillsToConsultant(Consultant consultant, String skillsStr, Map<String, Skill> skillMap) {
+        String clean = skillsStr.trim().replace("\"", "");
+        if (!clean.isEmpty()) {
+            for (String skillEntry : clean.split(";")) {
+                String[] skillParts = skillEntry.split(":");
+                if (skillParts.length >= 2) {
+                    String skillName = skillParts[0].trim();
+                    Integer yearsExp = Integer.parseInt(skillParts[1].trim());
+                    Skill skill = skillMap.get(skillName);
+                    if (skill != null) {
+                        HasSkill hasSkill = new HasSkill();
+                        hasSkill.setSkill(skill);
+                        hasSkill.setSkillYearsOfExperience(yearsExp);
+                        consultant.getSkills().add(hasSkill);
+                    }
                 }
             }
         }
@@ -227,8 +184,7 @@ public class DataLoader {
         return consultant;
     }
 
-    private void loadProjects(Map<String, Company> companyMap, Map<String, Skill> skillMap,
-                             Map<String, Technology> technologyMap) throws IOException {
+    private void loadProjects(Map<String, Company> companyMap, Map<String, Skill> skillMap) throws IOException {
         ClassPathResource resource = new ClassPathResource("data/projects.csv");
 
         try (BufferedReader reader = new BufferedReader(new InputStreamReader(resource.getInputStream()))) {
@@ -286,10 +242,10 @@ public class DataLoader {
                                 ProficiencyLevel minLevel = ProficiencyLevel.valueOf(techParts[1].trim());
                                 Boolean isMandatory = Boolean.parseBoolean(techParts[2].trim());
 
-                                Technology technology = technologyMap.get(techName);
-                                if (technology != null) {
+                                Skill skill = skillMap.get(techName);
+                                if (skill != null) {
                                     RequiresTechnology requiresTechnology = new RequiresTechnology();
-                                    requiresTechnology.setTechnology(technology);
+                                    requiresTechnology.setSkill(skill);
                                     requiresTechnology.setMinLevel(minLevel);
                                     requiresTechnology.setIsMandatory(isMandatory);
                                     project.getRequiredTechnologies().add(requiresTechnology);
@@ -298,10 +254,10 @@ public class DataLoader {
                         }
                     }
 
+
                     projectRepository.save(project);
                 }
             }
         }
     }
 }
-

@@ -21,5 +21,4 @@ public class ConsultantResponse {
     private final Boolean openToRemote;
     private final List<String> preferredRegions;
     private final Set<HasSkillResponse> skills;
-    private final Set<KnowsTechnologyResponse> technologies;
 }

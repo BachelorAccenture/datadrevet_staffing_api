@@ -4,13 +4,11 @@ import com.example.demo.model.Company;
 import com.example.demo.model.ProficiencyLevel;
 import com.example.demo.model.Project;
 import com.example.demo.model.Skill;
-import com.example.demo.model.Technology;
 import com.example.demo.model.relationship.RequiresSkill;
 import com.example.demo.model.relationship.RequiresTechnology;
 import com.example.demo.repository.CompanyRepository;
 import com.example.demo.repository.ProjectRepository;
 import com.example.demo.repository.SkillRepository;
-import com.example.demo.repository.TechnologyRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -26,7 +24,6 @@ public class ProjectService {
     private final ProjectRepository projectRepository;
     private final CompanyRepository companyRepository;
     private final SkillRepository skillRepository;
-    private final TechnologyRepository technologyRepository;
 
     public Project create(final Project project) {
         log.info("[ProjectService] - CREATE: name: {}", project.getName());
@@ -113,19 +110,19 @@ public class ProjectService {
         return projectRepository.save(project);
     }
 
-    public Project addRequiredTechnology(final String projectId, final String technologyId,
+    public Project addRequiredTechnology(final String projectId, final String skillId,
                                          final ProficiencyLevel minLevel, final Boolean isMandatory) {
-        log.info("[ProjectService] - ADD_REQUIRED_TECHNOLOGY: projectId: {}, technologyId: {}, minLevel: {}, mandatory: {}",
-                projectId, technologyId, minLevel, isMandatory);
+        log.info("[ProjectService] - ADD_REQUIRED_TECHNOLOGY: projectId: {}, skillId: {}, minLevel: {}, mandatory: {}",
+                projectId, skillId, minLevel, isMandatory);
 
         final Project project = projectRepository.findById(projectId)
                 .orElseThrow(() -> new IllegalArgumentException("Project not found with id: " + projectId));
 
-        final Technology technology = technologyRepository.findById(technologyId)
-                .orElseThrow(() -> new IllegalArgumentException("Technology not found with id: " + technologyId));
+        final Skill skill = skillRepository.findById(skillId)
+                .orElseThrow(() -> new IllegalArgumentException("Skill not found with id: " + skillId));
 
         final RequiresTechnology requiresTechnology = new RequiresTechnology();
-        requiresTechnology.setTechnology(technology);
+        requiresTechnology.setSkill(skill);
         requiresTechnology.setMinLevel(minLevel);
         requiresTechnology.setIsMandatory(isMandatory);
 

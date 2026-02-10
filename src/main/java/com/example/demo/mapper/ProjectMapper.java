@@ -83,8 +83,8 @@ public final class ProjectMapper {
 
     private static RequiresTechnologyResponse mapRequiresTechnology(final RequiresTechnology requiresTechnology) {
         return RequiresTechnologyResponse.builder()
-                .withTechnologyId(requiresTechnology.getTechnology() != null ? requiresTechnology.getTechnology().getId() : null)
-                .withTechnologyName(requiresTechnology.getTechnology() != null ? requiresTechnology.getTechnology().getName() : null)
+                .withTechnologyId(requiresTechnology.getSkill() != null ? requiresTechnology.getSkill().getId() : null)
+                .withTechnologyName(requiresTechnology.getSkill() != null ? requiresTechnology.getSkill().getName() : null)
                 .withMinLevel(requiresTechnology.getMinLevel())
                 .withIsMandatory(requiresTechnology.getIsMandatory())
                 .build();

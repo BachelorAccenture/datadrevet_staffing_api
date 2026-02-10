@@ -1,11 +1,9 @@
 package com.example.demo.repository;
 
+import com.example.demo.config.AbstractNeo4jTest;
 import com.example.demo.model.Consultant;
-import com.example.demo.model.ProficiencyLevel;
 import com.example.demo.model.Skill;
-import com.example.demo.model.Technology;
 import com.example.demo.model.relationship.HasSkill;
-import com.example.demo.model.relationship.Knows;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,7 +16,7 @@ import java.util.Optional;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @DataNeo4jTest
-class ConsultantRepositoryTest {
+class ConsultantRepositoryTest extends AbstractNeo4jTest {
 
     @Autowired
     private ConsultantRepository consultantRepository;
@@ -26,16 +24,12 @@ class ConsultantRepositoryTest {
     @Autowired
     private SkillRepository skillRepository;
 
-    @Autowired
-    private TechnologyRepository technologyRepository;
-
     private Consultant testConsultant;
 
     @BeforeEach
     void setUp() {
         consultantRepository.deleteAll();
         skillRepository.deleteAll();
-        technologyRepository.deleteAll();
 
         testConsultant = new Consultant();
         testConsultant.setName("Ola Nordmann");
@@ -121,7 +115,6 @@ class ConsultantRepositoryTest {
 
         HasSkill hasSkill = new HasSkill();
         hasSkill.setSkill(javaSkill);
-        hasSkill.setLevel(ProficiencyLevel.EXPERT);
         testConsultant.getSkills().add(hasSkill);
         consultantRepository.save(testConsultant);
 
@@ -133,27 +126,6 @@ class ConsultantRepositoryTest {
         assertThat(found.get(0).getName()).isEqualTo("Ola Nordmann");
     }
 
-    @Test
-    void shouldFindConsultantsByTechnologyNames() {
-        // Given
-        Technology docker = new Technology();
-        docker.setName("Docker");
-        docker = technologyRepository.save(docker);
-
-        Knows knows = new Knows();
-        knows.setTechnology(docker);
-        knows.setLevel(ProficiencyLevel.ADVANCED);
-        knows.setYearsExperience(3);
-        testConsultant.getTechnologies().add(knows);
-        consultantRepository.save(testConsultant);
-
-        // When
-        List<Consultant> found = consultantRepository.findByTechnologyNames(Arrays.asList("Docker"));
-
-        // Then
-        assertThat(found).hasSize(1);
-        assertThat(found.get(0).getName()).isEqualTo("Ola Nordmann");
-    }
 
     @Test
     void findAvailableWithMinExperience_withMixedExperience_returnsOnlyExperienced() {

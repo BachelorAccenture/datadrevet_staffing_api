@@ -1,5 +1,6 @@
 package com.example.demo.repository;
 
+import com.example.demo.config.AbstractNeo4jTest;
 import com.example.demo.model.Skill;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -13,7 +14,7 @@ import java.util.Optional;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @DataNeo4jTest
-class SkillRepositoryTest {
+class SkillRepositoryTest extends AbstractNeo4jTest {
 
     @Autowired
     private SkillRepository skillRepository;

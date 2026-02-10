@@ -1,7 +1,6 @@
 package com.example.demo.controller;
 
 import com.example.demo.dto.request.AddSkillRequest;
-import com.example.demo.dto.request.AddTechnologyRequest;
 import com.example.demo.dto.request.CreateConsultantRequest;
 import com.example.demo.dto.response.ConsultantResponse;
 import com.example.demo.exception.ResourceNotFoundException;
@@ -100,13 +99,6 @@ public class ConsultantController {
         return ResponseEntity.ok(ConsultantMapper.toResponseList(consultants));
     }
 
-    @GetMapping("/by-technologies")
-    public ResponseEntity<List<ConsultantResponse>> getByTechnologies(
-            @RequestParam final List<String> technologyNames) {
-        log.info("[ConsultantController] - GET_BY_TECHNOLOGIES: technologies: {}", technologyNames);
-        final List<Consultant> consultants = consultantService.findByTechnologyNames(technologyNames);
-        return ResponseEntity.ok(ConsultantMapper.toResponseList(consultants));
-    }
 
     @GetMapping("/available-with-experience")
     public ResponseEntity<List<ConsultantResponse>> getAvailableWithMinExperience(
@@ -137,19 +129,9 @@ public class ConsultantController {
     public ResponseEntity<ConsultantResponse> addSkill(
             @PathVariable final String id,
             @Valid @RequestBody final AddSkillRequest request) {
-        log.info("[ConsultantController] - ADD_SKILL: consultantId: {}, skillId: {}", id, request.skillId());
-        final Consultant consultant = consultantService.addSkill(id, request.skillId(), request.level());
-        return ResponseEntity.ok(ConsultantMapper.toResponse(consultant));
-    }
-
-    @PostMapping("/{id}/technologies")
-    public ResponseEntity<ConsultantResponse> addTechnology(
-            @PathVariable final String id,
-            @Valid @RequestBody final AddTechnologyRequest request) {
-        log.info("[ConsultantController] - ADD_TECHNOLOGY: consultantId: {}, technologyId: {}",
-                id, request.technologyId());
-        final Consultant consultant = consultantService.addTechnology(
-                id, request.technologyId(), request.level(), request.yearsExperience());
+        log.info("[ConsultantController] - ADD_SKILL: consultantId: {}, skillId: {}, skillYearsOfExperience: {}",
+                id, request.skillId(), request.skillYearsOfExperience());
+        final Consultant consultant = consultantService.addSkill(id, request.skillId(), request.skillYearsOfExperience());
         return ResponseEntity.ok(ConsultantMapper.toResponse(consultant));
     }
 }

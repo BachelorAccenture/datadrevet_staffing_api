@@ -3,10 +3,8 @@ package com.example.demo.mapper;
 import com.example.demo.dto.request.CreateConsultantRequest;
 import com.example.demo.dto.response.ConsultantResponse;
 import com.example.demo.dto.response.HasSkillResponse;
-import com.example.demo.dto.response.KnowsTechnologyResponse;
 import com.example.demo.model.Consultant;
 import com.example.demo.model.relationship.HasSkill;
-import com.example.demo.model.relationship.Knows;
 
 import java.util.Collections;
 import java.util.List;
@@ -35,7 +33,6 @@ public final class ConsultantMapper {
                 .withOpenToRemote(consultant.getOpenToRemote())
                 .withPreferredRegions(consultant.getPreferredRegions())
                 .withSkills(mapSkills(consultant.getSkills()))
-                .withTechnologies(mapTechnologies(consultant.getTechnologies()))
                 .build();
     }
 
@@ -78,25 +75,7 @@ public final class ConsultantMapper {
         return HasSkillResponse.builder()
                 .withSkillId(hasSkill.getSkill() != null ? hasSkill.getSkill().getId() : null)
                 .withSkillName(hasSkill.getSkill() != null ? hasSkill.getSkill().getName() : null)
-                .withLevel(hasSkill.getLevel())
-                .build();
-    }
-
-    private static Set<KnowsTechnologyResponse> mapTechnologies(final Set<Knows> technologies) {
-        if (technologies == null || technologies.isEmpty()) {
-            return Collections.emptySet();
-        }
-        return technologies.stream()
-                .map(ConsultantMapper::mapKnows)
-                .collect(Collectors.toSet());
-    }
-
-    private static KnowsTechnologyResponse mapKnows(final Knows knows) {
-        return KnowsTechnologyResponse.builder()
-                .withTechnologyId(knows.getTechnology() != null ? knows.getTechnology().getId() : null)
-                .withTechnologyName(knows.getTechnology() != null ? knows.getTechnology().getName() : null)
-                .withLevel(knows.getLevel())
-                .withYearsExperience(knows.getYearsExperience())
+                .withSkillYearsOfExperience(hasSkill.getSkillYearsOfExperience())
                 .build();
     }
 }
