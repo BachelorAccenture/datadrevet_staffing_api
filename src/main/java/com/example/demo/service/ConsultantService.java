@@ -63,18 +63,15 @@ public class ConsultantService {
     }
 
     public List<Consultant> searchConsultants(final List<String> skillNames,
-                                              final List<String> technologyNames,
                                               final String role,
                                               final Integer minYearsOfExperience) {
         log.info("[ConsultantService] - SEARCH: skills: {}, technologies: {}, role: {}, minYears: {}",
-                skillNames, technologyNames, role, minYearsOfExperience);
+                skillNames, role, minYearsOfExperience);
 
         final List<String> safeSkillNames = skillNames != null ? skillNames : Collections.emptyList();
-        final List<String> safeTechnologyNames = technologyNames != null ? technologyNames : Collections.emptyList();
 
         return consultantRepository.searchConsultants(
                 safeSkillNames,
-                safeTechnologyNames,
                 role,
                 minYearsOfExperience
         );

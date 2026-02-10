@@ -85,13 +85,6 @@ public class ProjectController {
         return ResponseEntity.ok(ProjectMapper.toResponseList(projects));
     }
 
-    @GetMapping("/by-required-technologies")
-    public ResponseEntity<List<ProjectResponse>> getByRequiredTechnologies(
-            @RequestParam final List<String> technologyNames) {
-        log.info("[ProjectController] - GET_BY_REQUIRED_TECHNOLOGIES: technologies: {}", technologyNames);
-        final List<Project> projects = projectService.findByRequiredTechnologyNames(technologyNames);
-        return ResponseEntity.ok(ProjectMapper.toResponseList(projects));
-    }
 
     @PutMapping("/{id}")
     public ResponseEntity<ProjectResponse> update(

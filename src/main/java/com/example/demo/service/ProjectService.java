@@ -53,11 +53,6 @@ public class ProjectService {
         return projectRepository.findByRequiredSkillNames(skillNames);
     }
 
-    public List<Project> findByRequiredTechnologyNames(final List<String> technologyNames) {
-        log.debug("[ProjectService] - FIND_BY_REQUIRED_TECHNOLOGY_NAMES: technologies: {}", technologyNames);
-        return projectRepository.findByRequiredTechnologyNames(technologyNames);
-    }
-
     public Project update(final String id, final Project updatedProject) {
         log.info("[ProjectService] - UPDATE: id: {}", id);
         final Project existingProject = projectRepository.findById(id)
