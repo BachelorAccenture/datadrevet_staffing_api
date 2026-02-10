@@ -33,6 +33,8 @@ build/
 .vscode/
 /.mvn/
 /.gitattributes
+/src/main/resources/.env
+
 /mvnw
 /mvnw.cmd
 .env
