@@ -28,6 +28,7 @@ public final class ProjectMapper {
                 .withDate(project.getDate())
                 .withCompany(CompanyMapper.toResponse(project.getCompany()))
                 .withRequiredSkills(mapRequiredSkills(project.getRequiredSkills()))
+                .withRoles(project.getRoles())
                 .build();
     }
 
@@ -64,7 +65,7 @@ public final class ProjectMapper {
         return RequiresSkillResponse.builder()
                 .withSkillId(requiresSkill.getSkill() != null ? requiresSkill.getSkill().getId() : null)
                 .withSkillName(requiresSkill.getSkill() != null ? requiresSkill.getSkill().getName() : null)
-                .withMinLevel(requiresSkill.getMinLevel())
+                .withMinYearsOfExperience(requiresSkill.getMinYearsOfExperience())
                 .withIsMandatory(requiresSkill.getIsMandatory())
                 .build();
     }

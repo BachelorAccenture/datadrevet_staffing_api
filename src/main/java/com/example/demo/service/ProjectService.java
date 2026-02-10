@@ -1,7 +1,6 @@
 package com.example.demo.service;
 
 import com.example.demo.model.Company;
-import com.example.demo.model.ProficiencyLevel;
 import com.example.demo.model.Project;
 import com.example.demo.model.Skill;
 import com.example.demo.model.relationship.RequiresSkill;
@@ -90,9 +89,9 @@ public class ProjectService {
     }
 
     public Project addRequiredSkill(final String projectId, final String skillId,
-                                    final ProficiencyLevel minLevel, final Boolean isMandatory) {
-        log.info("[ProjectService] - ADD_REQUIRED_SKILL: projectId: {}, skillId: {}, minLevel: {}, mandatory: {}",
-                projectId, skillId, minLevel, isMandatory);
+                                    final Integer minYearsOfExperience, final Boolean isMandatory) {
+        log.info("[ProjectService] - ADD_REQUIRED_SKILL: projectId: {}, skillId: {}, minYears: {}, mandatory: {}",
+                projectId, skillId, minYearsOfExperience, isMandatory);
 
         final Project project = projectRepository.findById(projectId)
                 .orElseThrow(() -> new IllegalArgumentException("Project not found with id: " + projectId));
@@ -102,7 +101,7 @@ public class ProjectService {
 
         final RequiresSkill requiresSkill = new RequiresSkill();
         requiresSkill.setSkill(skill);
-        requiresSkill.setMinLevel(minLevel);
+        requiresSkill.setMinYearsOfExperience(minYearsOfExperience);
         requiresSkill.setIsMandatory(isMandatory);
 
         project.getRequiredSkills().add(requiresSkill);

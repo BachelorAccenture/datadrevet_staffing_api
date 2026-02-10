@@ -1,7 +1,6 @@
 package com.example.demo.controller;
 
 import com.example.demo.dto.request.AddRequiredSkillRequest;
-import com.example.demo.dto.request.AddRequiredTechnologyRequest;
 import com.example.demo.dto.request.CreateProjectRequest;
 import com.example.demo.dto.response.ProjectResponse;
 import com.example.demo.exception.ResourceNotFoundException;
@@ -126,7 +125,7 @@ public class ProjectController {
             @Valid @RequestBody final AddRequiredSkillRequest request) {
         log.info("[ProjectController] - ADD_REQUIRED_SKILL: projectId: {}, skillId: {}", id, request.skillId());
         final Boolean isMandatory = request.isMandatory() != null ? request.isMandatory() : false;
-        final Project project = projectService.addRequiredSkill(id, request.skillId(), request.minLevel(), isMandatory);
+        final Project project = projectService.addRequiredSkill(id, request.skillId(), request.minYearsOfExperience(), isMandatory);
         return ResponseEntity.ok(ProjectMapper.toResponse(project));
     }
 }
