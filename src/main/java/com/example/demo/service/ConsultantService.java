@@ -2,12 +2,9 @@ package com.example.demo.service;
 
 import com.example.demo.model.Consultant;
 import com.example.demo.model.Skill;
-import com.example.demo.model.Technology;
 import com.example.demo.model.relationship.HasSkill;
-import com.example.demo.model.relationship.Knows;
 import com.example.demo.repository.ConsultantRepository;
 import com.example.demo.repository.SkillRepository;
-import com.example.demo.repository.TechnologyRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -19,11 +16,10 @@ import java.util.Optional;
 @Service
 @RequiredArgsConstructor
 @Slf4j
-public class    ConsultantService {
+public class ConsultantService {
 
     private final ConsultantRepository consultantRepository;
     private final SkillRepository skillRepository;
-    private final TechnologyRepository technologyRepository;
 
     public Consultant create(final Consultant consultant) {
         log.info("[ConsultantService] - CREATE: email: {}", consultant.getEmail());
@@ -60,10 +56,6 @@ public class    ConsultantService {
         return consultantRepository.findBySkillNames(skillNames);
     }
 
-    public List<Consultant> findByTechnologyNames(final List<String> technologyNames) {
-        log.debug("[ConsultantService] - FIND_BY_TECHNOLOGY_NAMES: technologies: {}", technologyNames);
-        return consultantRepository.findByTechnologyNames(technologyNames);
-    }
 
     public List<Consultant> findAvailableWithMinExperience(final Integer minYears) {
         log.debug("[ConsultantService] - FIND_AVAILABLE_WITH_MIN_EXPERIENCE: minYears: {}", minYears);
@@ -111,24 +103,6 @@ public class    ConsultantService {
         consultantRepository.deleteById(id);
     }
 
-
-    public Consultant addTechnology(final String consultantId, final String technologyId, final Integer skillYearsOfExperience) {
-        log.info("[ConsultantService] - ADD_TECHNOLOGY: consultantId: {}, technologyId: {}, skillYearsOfExperience: {}",
-                consultantId, technologyId, skillYearsOfExperience);
-
-        final Consultant consultant = consultantRepository.findById(consultantId)
-                .orElseThrow(() -> new IllegalArgumentException("Consultant not found with id: " + consultantId));
-
-        final Technology technology = technologyRepository.findById(technologyId)
-                .orElseThrow(() -> new IllegalArgumentException("Technology not found with id: " + technologyId));
-
-        final Knows knows = new Knows();
-        knows.setTechnology(technology);
-        knows.setSkillYearsOfExperience(skillYearsOfExperience);
-
-        consultant.getTechnologies().add(knows);
-        return consultantRepository.save(consultant);
-    }
 
     public Consultant addSkill(final String consultantId, final String skillId, final Integer skillYearsOfExperience) {
         log.info("[ConsultantService] - ADD_SKILL: consultantId: {}, skillId: {}, skillYearsOfExperience: {}",

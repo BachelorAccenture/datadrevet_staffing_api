@@ -1,7 +1,7 @@
 package com.example.demo.model.relationship;
 
 import com.example.demo.model.ProficiencyLevel;
-import com.example.demo.model.Technology;
+import com.example.demo.model.Skill;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.data.neo4j.core.schema.GeneratedValue;
@@ -20,7 +20,7 @@ public class RequiresTechnology {
     private Long id;
 
     @TargetNode
-    private Technology technology;
+    private Skill skill;
 
     @Property("minLevel")
     private ProficiencyLevel minLevel;

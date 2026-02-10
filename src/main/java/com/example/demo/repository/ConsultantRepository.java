@@ -23,13 +23,6 @@ public interface ConsultantRepository extends Neo4jRepository<Consultant, String
         """)
     List<Consultant> findBySkillNames(@Param("skillNames") List<String> skillNames);
 
-    @Query("""
-        MATCH (c:Consultant)-[k:KNOWS]->(t:Technology)
-        WHERE t.name IN $technologyNames
-        RETURN c, collect(k), collect(t)
-        """)
-
-    List<Consultant> findByTechnologyNames(@Param("technologyNames") List<String> technologyNames);
 
     @Query("""
         MATCH (c:Consultant)

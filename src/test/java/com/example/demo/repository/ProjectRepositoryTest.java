@@ -1,5 +1,6 @@
 package com.example.demo.repository;
 
+import com.example.demo.config.AbstractNeo4jTest;
 import com.example.demo.model.*;
 import com.example.demo.model.relationship.RequiresSkill;
 import com.example.demo.model.relationship.RequiresTechnology;
@@ -16,7 +17,7 @@ import java.util.Optional;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @DataNeo4jTest
-class ProjectRepositoryTest {
+class ProjectRepositoryTest extends AbstractNeo4jTest {
 
     @Autowired
     private ProjectRepository projectRepository;
@@ -27,9 +28,6 @@ class ProjectRepositoryTest {
     @Autowired
     private SkillRepository skillRepository;
 
-    @Autowired
-    private TechnologyRepository technologyRepository;
-
     private Project testProject;
     private Company testCompany;
 
@@ -38,7 +36,6 @@ class ProjectRepositoryTest {
         projectRepository.deleteAll();
         companyRepository.deleteAll();
         skillRepository.deleteAll();
-        technologyRepository.deleteAll();
 
         testCompany = new Company();
         testCompany.setName("TechCorp AS");
@@ -116,27 +113,6 @@ class ProjectRepositoryTest {
         assertThat(found.get(0).getName()).isEqualTo("E-Commerce Platform");
     }
 
-    @Test
-    void shouldFindProjectsByRequiredTechnologyNames() {
-        // Given
-        Technology docker = new Technology();
-        docker.setName("Docker");
-        docker = technologyRepository.save(docker);
-
-        RequiresTechnology requiresTechnology = new RequiresTechnology();
-        requiresTechnology.setTechnology(docker);
-        requiresTechnology.setMinLevel(ProficiencyLevel.INTERMEDIATE);
-        requiresTechnology.setIsMandatory(true);
-        testProject.getRequiredTechnologies().add(requiresTechnology);
-        projectRepository.save(testProject);
-
-        // When
-        List<Project> found = projectRepository.findByRequiredTechnologyNames(Arrays.asList("Docker"));
-
-        // Then
-        assertThat(found).hasSize(1);
-        assertThat(found.get(0).getName()).isEqualTo("E-Commerce Platform");
-    }
 
     @Test
     void shouldFindProjectsWithMultipleRequiredSkills() {

@@ -2,12 +2,9 @@ package com.example.demo.service;
 
 import com.example.demo.model.Consultant;
 import com.example.demo.model.Skill;
-import com.example.demo.model.Technology;
 import com.example.demo.model.relationship.HasSkill;
-import com.example.demo.model.relationship.Knows;
 import com.example.demo.repository.ConsultantRepository;
 import com.example.demo.repository.SkillRepository;
-import com.example.demo.repository.TechnologyRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -39,9 +36,6 @@ class ConsultantServiceTest {
     @Mock
     private SkillRepository skillRepository;
 
-    @Mock
-    private TechnologyRepository technologyRepository;
-
     @InjectMocks
     private ConsultantService consultantService;
 
@@ -50,7 +44,6 @@ class ConsultantServiceTest {
 
     private Consultant testConsultant;
     private Skill testSkill;
-    private Technology testTechnology;
 
     @BeforeEach
     void setUp() {
@@ -70,11 +63,6 @@ class ConsultantServiceTest {
         testSkill.setId("skill-123");
         testSkill.setName("Java");
         testSkill.setSynonyms(List.of("JDK", "Java SE"));
-
-        testTechnology = new Technology();
-        testTechnology.setId("tech-123");
-        testTechnology.setName("Neo4j");
-        testTechnology.setSynonyms(List.of("Neo4j Graph Database"));
     }
 
     @Nested
@@ -265,25 +253,6 @@ class ConsultantServiceTest {
     }
 
     @Nested
-    @DisplayName("findByTechnologyNames")
-    class FindByTechnologyNames {
-
-        @Test
-        void findByTechnologyNames_withMatchingTechnologies_returnsConsultants() {
-            // given
-            final List<String> technologyNames = List.of("Neo4j", "PostgreSQL");
-            when(consultantRepository.findByTechnologyNames(technologyNames)).thenReturn(List.of(testConsultant));
-
-            // when
-            final List<Consultant> result = consultantService.findByTechnologyNames(technologyNames);
-
-            // then
-            assertThat(result).hasSize(1);
-            verify(consultantRepository).findByTechnologyNames(technologyNames);
-        }
-    }
-
-    @Nested
     @DisplayName("findAvailableWithMinExperience")
     class FindAvailableWithMinExperience {
 
@@ -451,77 +420,6 @@ class ConsultantServiceTest {
         }
     }
 
-    @Nested
-    @DisplayName("addTechnology")
-    class AddTechnology {
-
-        @Test
-        void addTechnology_withValidIds_addsTechnologyToConsultant() {
-            // given
-            when(consultantRepository.findById("consultant-123")).thenReturn(Optional.of(testConsultant));
-            when(technologyRepository.findById("tech-123")).thenReturn(Optional.of(testTechnology));
-            when(consultantRepository.save(any(Consultant.class))).thenAnswer(invocation -> invocation.getArgument(0));
-
-            // when
-            final Consultant result = consultantService.addTechnology(
-                    "consultant-123", "tech-123", 3);
-
-            // then
-            verify(consultantRepository).save(consultantCaptor.capture());
-            final Consultant savedConsultant = consultantCaptor.getValue();
-
-            assertThat(savedConsultant.getTechnologies()).hasSize(1);
-            final Knows addedTech = savedConsultant.getTechnologies().iterator().next();
-            assertThat(addedTech.getTechnology().getName()).isEqualTo("Neo4j");
-            assertThat(addedTech.getSkillYearsOfExperience()).isEqualTo(3);
-        }
-
-        @Test
-        void addTechnology_withNonExistingConsultant_throwsException() {
-            // given
-            when(consultantRepository.findById("non-existing")).thenReturn(Optional.empty());
-
-            // when / then
-            assertThatThrownBy(() -> consultantService.addTechnology(
-                    "non-existing", "tech-123", 1))
-                    .isInstanceOf(IllegalArgumentException.class)
-                    .hasMessageContaining("Consultant not found with id: non-existing");
-
-            verify(technologyRepository, never()).findById(any());
-            verify(consultantRepository, never()).save(any());
-        }
-
-        @Test
-        void addTechnology_withNonExistingTechnology_throwsException() {
-            // given
-            when(consultantRepository.findById("consultant-123")).thenReturn(Optional.of(testConsultant));
-            when(technologyRepository.findById("non-existing")).thenReturn(Optional.empty());
-
-            // when / then
-            assertThatThrownBy(() -> consultantService.addTechnology(
-                    "consultant-123", "non-existing", 1))
-                    .isInstanceOf(IllegalArgumentException.class)
-                    .hasMessageContaining("Technology not found with id: non-existing");
-
-            verify(consultantRepository, never()).save(any());
-        }
-
-        @Test
-        void addTechnology_withNullYearsExperience_savesWithNull() {
-            // given
-            when(consultantRepository.findById("consultant-123")).thenReturn(Optional.of(testConsultant));
-            when(technologyRepository.findById("tech-123")).thenReturn(Optional.of(testTechnology));
-            when(consultantRepository.save(any(Consultant.class))).thenAnswer(invocation -> invocation.getArgument(0));
-
-            // when
-            consultantService.addTechnology("consultant-123", "tech-123", null);
-
-            // then
-            verify(consultantRepository).save(consultantCaptor.capture());
-            final Knows addedTech = consultantCaptor.getValue().getTechnologies().iterator().next();
-            assertThat(addedTech.getSkillYearsOfExperience()).isNull();
-        }
-    }
 
     @Nested
     @DisplayName("existsByEmail")
