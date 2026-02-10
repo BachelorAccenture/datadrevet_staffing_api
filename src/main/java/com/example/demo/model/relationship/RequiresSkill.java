@@ -1,6 +1,5 @@
 package com.example.demo.model.relationship;
 
-import com.example.demo.model.ProficiencyLevel;
 import com.example.demo.model.Skill;
 import lombok.Getter;
 import lombok.Setter;
@@ -22,8 +21,8 @@ public class RequiresSkill {
     @TargetNode
     private Skill skill;
 
-    @Property("minLevel")
-    private ProficiencyLevel minLevel;
+    @Property("minYearsOfExperience")
+    private Integer minYearsOfExperience;
 
     @Property("isMandatory")
     private Boolean isMandatory;

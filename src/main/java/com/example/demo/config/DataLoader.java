@@ -1,6 +1,7 @@
 package com.example.demo.config;
 
 import com.example.demo.model.*;
+import com.example.demo.model.relationship.AssignedTo;
 import com.example.demo.model.relationship.HasSkill;
 import com.example.demo.model.relationship.RequiresSkill;
 import com.example.demo.repository.*;
@@ -28,6 +29,28 @@ public class DataLoader {
     private final SkillRepository skillRepository;
     private final ProjectRepository projectRepository;
 
+    /**
+     * Strictly parses an integer from a string.
+     * Throws IllegalArgumentException with a clear error message if parsing fails.
+     * This ensures that CSV files must be correct - no invalid data is accepted.
+     */
+    private static Integer strictParseInt(String value, String fieldName, String context) {
+        if (value == null || value.trim().isEmpty()) {
+            throw new IllegalArgumentException(
+                String.format("[DataLoader] - FEIL: Tomt felt '%s' i %s. CSV-filen må inneholde en gyldig tallverdi.",
+                    fieldName, context)
+            );
+        }
+        try {
+            return Integer.parseInt(value.trim());
+        } catch (NumberFormatException e) {
+            throw new IllegalArgumentException(
+                String.format("[DataLoader] - FEIL: Ugyldig tallverdi '%s' for felt '%s' i %s. Forventet et heltall, men fikk tekst. Vennligst korriger CSV-filen.",
+                    value, fieldName, context)
+            );
+        }
+    }
+
     @Bean
     @Profile("dev")
     public CommandLineRunner loadData() {
@@ -51,13 +74,13 @@ public class DataLoader {
                 Map<String, Company> companyMap = loadCompanies();
                 log.info("[DataLoader] - Loaded {} companies", companyMap.size());
 
-                // Load consultants from CSV
-                loadConsultants(skillMap);
-                log.info("[DataLoader] - Loaded {} consultants", consultantRepository.count());
+                // Load projects from CSV (before consultants to create project references)
+                Map<String, Project> projectMap = loadProjects(companyMap, skillMap);
+                log.info("[DataLoader] - Loaded {} projects", projectMap.size());
 
-                // Load projects from CSV
-                loadProjects(companyMap, skillMap);
-                log.info("[DataLoader] - Loaded {} projects", projectRepository.count());
+                // Load consultants from CSV with project assignments
+                loadConsultants(skillMap, projectMap);
+                log.info("[DataLoader] - Loaded {} consultants", consultantRepository.count());
 
                 log.info("[DataLoader] - Data initialization completed successfully!");
             } catch (IOException e) {
@@ -121,7 +144,7 @@ public class DataLoader {
         return companyMap;
     }
 
-    private void loadConsultants(Map<String, Skill> skillMap) throws IOException {
+    private void loadConsultants(Map<String, Skill> skillMap, Map<String, Project> projectMap) throws IOException {
         ClassPathResource resource = new ClassPathResource("data/consultants.csv");
 
         try (BufferedReader reader = new BufferedReader(new InputStreamReader(resource.getInputStream()))) {
@@ -130,12 +153,17 @@ public class DataLoader {
 
             while ((line = reader.readLine()) != null) {
                 String[] parts = line.split(",", -1);
-                if (parts.length >= 11) {
+                if (parts.length >= 14) {
                     Consultant consultant = getConsultant(parts);
 
-                    // Parse and add skills from both columns
+                    // Parse and add skills (column 9)
                     addSkillsToConsultant(consultant, parts[9], skillMap);
-                    addSkillsToConsultant(consultant, parts[10], skillMap);
+
+                    // Parse previous projects (column 10) and add as inactive assignments
+                    addProjectAssignments(consultant, parts[10], projectMap, parts[12], false);
+
+                    // Parse current project (column 11) and add as active assignment
+                    addProjectAssignments(consultant, parts[11], projectMap, parts[13], true);
 
                     consultantRepository.save(consultant);
                 }
@@ -143,6 +171,39 @@ public class DataLoader {
         }
     }
 
+    private void addProjectAssignments(Consultant consultant, String projectsStr, Map<String, Project> projectMap,
+                                       String rolesStr, boolean isActive) {
+        String cleanProjects = projectsStr.trim().replace("\"", "");
+        String cleanRoles = rolesStr.trim().replace("\"", "");
+
+        if (!cleanProjects.isEmpty()) {
+            String[] projectNames = cleanProjects.split(";");
+            String[] roles = cleanRoles.isEmpty() ? new String[0] : cleanRoles.split(";");
+
+            for (int i = 0; i < projectNames.length; i++) {
+                String projectName = projectNames[i].trim();
+                Project project = projectMap.get(projectName);
+
+                if (project != null) {
+                    AssignedTo assignment = new AssignedTo();
+                    assignment.setProject(project);
+                    assignment.setIsActive(isActive);
+                    assignment.setAllocationPercent(isActive ? 100 : null);
+
+                    // Get role if available
+                    if (i < roles.length) {
+                        assignment.setRole(roles[i].trim());
+                    } else if (roles.length > 0) {
+                        assignment.setRole(roles[roles.length - 1].trim());
+                    } else {
+                        assignment.setRole(consultant.getRole());
+                    }
+
+                    consultant.getProjectAssignments().add(assignment);
+                }
+            }
+        }
+    }
 
     private void addSkillsToConsultant(Consultant consultant, String skillsStr, Map<String, Skill> skillMap) {
         String clean = skillsStr.trim().replace("\"", "");
@@ -151,13 +212,22 @@ public class DataLoader {
                 String[] skillParts = skillEntry.split(":");
                 if (skillParts.length >= 2) {
                     String skillName = skillParts[0].trim();
-                    Integer yearsExp = Integer.parseInt(skillParts[1].trim());
-                    Skill skill = skillMap.get(skillName);
-                    if (skill != null) {
-                        HasSkill hasSkill = new HasSkill();
-                        hasSkill.setSkill(skill);
-                        hasSkill.setSkillYearsOfExperience(yearsExp);
-                        consultant.getSkills().add(hasSkill);
+                    try {
+                        Integer yearsExp = strictParseInt(
+                            skillParts[1],
+                            "yearsOfExperience",
+                            String.format("skill '%s' for konsulent '%s'", skillName, consultant.getName())
+                        );
+                        Skill skill = skillMap.get(skillName);
+                        if (skill != null) {
+                            HasSkill hasSkill = new HasSkill();
+                            hasSkill.setSkill(skill);
+                            hasSkill.setSkillYearsOfExperience(yearsExp);
+                            consultant.getSkills().add(hasSkill);
+                        }
+                    } catch (IllegalArgumentException e) {
+                        log.error(e.getMessage());
+                        throw e; // Stop hele datalasten
                     }
                 }
             }
@@ -169,7 +239,19 @@ public class DataLoader {
         consultant.setName(parts[0].trim());
         consultant.setEmail(parts[1].trim());
         consultant.setRole(parts[2].trim());
-        consultant.setYearsOfExperience(Integer.parseInt(parts[3].trim()));
+
+        try {
+            Integer yearsExp = strictParseInt(
+                parts[3],
+                "yearsOfExperience",
+                String.format("konsulent '%s' (%s)", parts[0].trim(), parts[1].trim())
+            );
+            consultant.setYearsOfExperience(yearsExp);
+        } catch (IllegalArgumentException e) {
+            log.error(e.getMessage());
+            throw e; // Stop hele datalasten
+        }
+
         consultant.setAvailability(Boolean.parseBoolean(parts[4].trim()));
         consultant.setWantsNewProject(Boolean.parseBoolean(parts[5].trim()));
         consultant.setOpenToRemote(Boolean.parseBoolean(parts[6].trim()));
@@ -183,7 +265,8 @@ public class DataLoader {
         return consultant;
     }
 
-    private void loadProjects(Map<String, Company> companyMap, Map<String, Skill> skillMap) throws IOException {
+    private Map<String, Project> loadProjects(Map<String, Company> companyMap, Map<String, Skill> skillMap) throws IOException {
+        Map<String, Project> projectMap = new HashMap<>();
         ClassPathResource resource = new ClassPathResource("data/projects.csv");
 
         try (BufferedReader reader = new BufferedReader(new InputStreamReader(resource.getInputStream()))) {
@@ -209,30 +292,68 @@ public class DataLoader {
                     project.setRequirements(requirements);
                     project.setDate(LocalDateTime.now());
 
-                    // Parse required skills (format: SkillName:MinLevel:IsMandatory;...)
+                    // Parse required skills (format: SkillName:MinYearsExp:IsMandatory;...)
                     String skillsStr = parts[3].trim().replace("\"", "");
                     if (!skillsStr.isEmpty()) {
                         for (String skillEntry : skillsStr.split(";")) {
                             String[] skillParts = skillEntry.split(":");
                             if (skillParts.length >= 3) {
                                 String skillName = skillParts[0].trim();
-                                ProficiencyLevel minLevel = ProficiencyLevel.valueOf(skillParts[1].trim());
-                                Boolean isMandatory = Boolean.parseBoolean(skillParts[2].trim());
 
-                                Skill skill = skillMap.get(skillName);
-                                if (skill != null) {
-                                    RequiresSkill requiresSkill = new RequiresSkill();
-                                    requiresSkill.setSkill(skill);
-                                    requiresSkill.setMinLevel(minLevel);
-                                    requiresSkill.setIsMandatory(isMandatory);
-                                    project.getRequiredSkills().add(requiresSkill);
+                                try {
+                                    Integer minYears = strictParseInt(
+                                        skillParts[1],
+                                        "minYearsOfExperience",
+                                        String.format("required skill '%s' for prosjekt '%s'", skillName, parts[0].trim())
+                                    );
+                                    Boolean isMandatory = Boolean.parseBoolean(skillParts[2].trim());
+
+                                    Skill skill = skillMap.get(skillName);
+                                    if (skill != null) {
+                                        RequiresSkill requiresSkill = new RequiresSkill();
+                                        requiresSkill.setSkill(skill);
+                                        requiresSkill.setMinYearsOfExperience(minYears);
+                                        requiresSkill.setIsMandatory(isMandatory);
+                                        project.getRequiredSkills().add(requiresSkill);
+                                    }
+                                } catch (IllegalArgumentException e) {
+                                    log.error(e.getMessage());
+                                    throw e; // Stop hele datalasten
                                 }
                             }
                         }
                     }
-                    projectRepository.save(project);
+
+                    // Parse roles (format: RoleName:Count;...)
+                    String rolesStr = parts[4].trim().replace("\"", "");
+                    if (!rolesStr.isEmpty()) {
+                        Map<String, Integer> roles = new HashMap<>();
+                        for (String roleEntry : rolesStr.split(";")) {
+                            String[] roleParts = roleEntry.split(":");
+                            if (roleParts.length >= 2) {
+                                String roleName = roleParts[0].trim();
+
+                                try {
+                                    Integer count = strictParseInt(
+                                        roleParts[1],
+                                        "count",
+                                        String.format("rolle '%s' for prosjekt '%s'", roleName, parts[0].trim())
+                                    );
+                                    roles.put(roleName, count);
+                                } catch (IllegalArgumentException e) {
+                                    log.error(e.getMessage());
+                                    throw e; // Stop hele datalasten
+                                }
+                            }
+                        }
+                        project.setRoles(roles);
+                    }
+
+                    project = projectRepository.save(project);
+                    projectMap.put(project.getName(), project);
                 }
             }
         }
+        return projectMap;
     }
 }

@@ -5,6 +5,7 @@ import lombok.Getter;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 @Getter
@@ -17,5 +18,5 @@ public class ProjectResponse {
     private final LocalDateTime date;
     private final CompanyResponse company;
     private final Set<RequiresSkillResponse> requiredSkills;
-    private final Set<RequiresTechnologyResponse> requiredTechnologies;
+    private final Map<String, Integer> roles;
 }
