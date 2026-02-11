@@ -38,9 +38,8 @@ public interface ConsultantRepository extends Neo4jRepository<Consultant, String
           AND (size($skillNames) = 0 OR EXISTS {
               MATCH (c)-[:HAS_SKILL]->(s:Skill) WHERE s.name IN $skillNames
           })
-          
         OPTIONAL MATCH (c)-[hs:HAS_SKILL]->(skill:Skill)
-        RETURN c, collect(DISTINCT hs), collect(DISTINCT skill), collect(DISTINCT k)
+        RETURN c, collect(DISTINCT hs), collect(DISTINCT skill)
         """)
     List<Consultant> searchConsultants(
             @Param("skillNames") List<String> skillNames,
