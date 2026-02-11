@@ -1,0 +1,10 @@
+spring:
+  config:
+    activate:
+      on-profile: test
+
+  neo4j:
+    uri: bolt://will-be-overridden
+    authentication:
+      username: neo4j
+      password: password
