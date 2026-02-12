@@ -84,7 +84,6 @@ public class ConsultantService {
 
         existingConsultant.setName(updatedConsultant.getName());
         existingConsultant.setEmail(updatedConsultant.getEmail());
-        existingConsultant.setRole(updatedConsultant.getRole());
         existingConsultant.setYearsOfExperience(updatedConsultant.getYearsOfExperience());
         existingConsultant.setAvailability(updatedConsultant.getAvailability());
         existingConsultant.setWantsNewProject(updatedConsultant.getWantsNewProject());

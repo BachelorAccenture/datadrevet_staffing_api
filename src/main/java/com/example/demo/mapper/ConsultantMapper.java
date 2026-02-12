@@ -27,7 +27,6 @@ public final class ConsultantMapper {
                 .withId(consultant.getId())
                 .withName(consultant.getName())
                 .withEmail(consultant.getEmail())
-                .withRole(consultant.getRole())
                 .withYearsOfExperience(consultant.getYearsOfExperience())
                 .withAvailability(consultant.getAvailability())
                 .withWantsNewProject(consultant.getWantsNewProject())
@@ -55,7 +54,6 @@ public final class ConsultantMapper {
         final Consultant consultant = new Consultant();
         consultant.setName(request.name());
         consultant.setEmail(request.email());
-        consultant.setRole(request.role());
         consultant.setYearsOfExperience(request.yearsOfExperience());
         consultant.setAvailability(request.availability() != null ? request.availability() : false);
         consultant.setWantsNewProject(request.wantsNewProject() != null ? request.wantsNewProject() : false);

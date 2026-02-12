@@ -32,9 +32,6 @@ public class Consultant {
     @Property("email")
     private String email;
 
-    @Property("role")
-    private String role;
-
     @Property("yearsOfExperience")
     private Integer yearsOfExperience;
 

@@ -13,7 +13,6 @@ public class ConsultantResponse {
     private final String id;
     private final String name;
     private final String email;
-    private final String role;
     private final Integer yearsOfExperience;
     private final Boolean availability;
     private final Boolean wantsNewProject;

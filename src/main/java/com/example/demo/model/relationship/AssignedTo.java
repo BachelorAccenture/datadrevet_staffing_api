@@ -9,6 +9,8 @@ import org.springframework.data.neo4j.core.schema.Property;
 import org.springframework.data.neo4j.core.schema.RelationshipProperties;
 import org.springframework.data.neo4j.core.schema.TargetNode;
 
+import java.util.Date;
+
 @RelationshipProperties
 @Getter
 @Setter
@@ -29,4 +31,9 @@ public class AssignedTo {
 
     @Property("role")
     private String role;
+
+    @Property("startDate")
+    private Date startDate;
+    @Property("endDate")
+    private Date endDate;
 }
