@@ -23,7 +23,6 @@ public interface ConsultantRepository extends Neo4jRepository<Consultant, String
         """)
     List<Consultant> findBySkillNames(@Param("skillNames") List<String> skillNames);
 
-
     @Query("""
         MATCH (c:Consultant)
         WHERE c.availability = true AND c.yearsOfExperience >= $minYears
@@ -33,13 +32,17 @@ public interface ConsultantRepository extends Neo4jRepository<Consultant, String
 
     @Query("""
         MATCH (c:Consultant)
-        WHERE ($role IS NULL OR $role = '' OR toLower(c.role) CONTAINS toLower($role))
-          AND ($minYearsOfExperience IS NULL OR c.yearsOfExperience >= $minYearsOfExperience)
+        WHERE ($minYearsOfExperience IS NULL OR c.yearsOfExperience >= $minYearsOfExperience)
+          AND ($role IS NULL OR $role = '' OR EXISTS {
+              MATCH (c)-[at:ASSIGNED_TO]->(p:Project)
+              WHERE toLower(at.role) CONTAINS toLower($role)
+          })
           AND (size($skillNames) = 0 OR EXISTS {
               MATCH (c)-[:HAS_SKILL]->(s:Skill) WHERE s.name IN $skillNames
           })
         OPTIONAL MATCH (c)-[hs:HAS_SKILL]->(skill:Skill)
-        RETURN c, collect(DISTINCT hs), collect(DISTINCT skill)
+        OPTIONAL MATCH (c)-[at:ASSIGNED_TO]->(project:Project)
+        RETURN c, collect(DISTINCT hs), collect(DISTINCT skill), collect(DISTINCT at), collect(DISTINCT project)
         """)
     List<Consultant> searchConsultants(
             @Param("skillNames") List<String> skillNames,

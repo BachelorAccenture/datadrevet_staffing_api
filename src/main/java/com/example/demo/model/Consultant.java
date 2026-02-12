@@ -2,7 +2,6 @@ package com.example.demo.model;
 
 import com.example.demo.model.relationship.AssignedTo;
 import com.example.demo.model.relationship.HasSkill;
-import com.example.demo.model.relationship.WorkedFor;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.data.neo4j.core.schema.GeneratedValue;
@@ -53,10 +52,8 @@ public class Consultant {
     @Relationship(type = "HAS_SKILL", direction = Relationship.Direction.OUTGOING)
     private Set<HasSkill> skills = new HashSet<>();
 
-
     @Relationship(type = "ASSIGNED_TO", direction = Relationship.Direction.OUTGOING)
     private Set<AssignedTo> projectAssignments = new HashSet<>();
 
-    @Relationship(type = "WORKED_FOR", direction = Relationship.Direction.OUTGOING)
-    private Set<WorkedFor> workHistory = new HashSet<>();
+
 }
