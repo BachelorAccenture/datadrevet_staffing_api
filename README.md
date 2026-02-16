@@ -1,183 +1,132 @@
 # Data-Driven Staffing API Documentation
 
-**Version:** 1.0  
+**Version:** 2.0
 **Base URL:** `http://localhost:8080/api/v1`
+**Content-Type:** `application/json`
 
 ---
 
 ## Table of Contents
 
 1. [Overview](#overview)
-2. [Authentication](#authentication)
+2. [Getting Started](#getting-started)
 3. [Error Handling](#error-handling)
-4. [Endpoints](#endpoints)
-    - [Skills](#skills)
-    - [Technologies](#technologies)
-    - [Companies](#companies)
-    - [Consultants](#consultants)
-    - [Projects](#projects)
+4. [Skills](#skills)
+5. [Companies](#companies)
+6. [Consultants](#consultants)
+7. [Projects](#projects)
+8. [Data Model](#data-model)
+9. [Endpoint Summary](#endpoint-summary)
 
 ---
 
 ## Overview
 
-The Data-Driven Staffing API is a RESTful service for managing consultants, their skills and technologies, companies, and project assignments. The system uses Neo4j as its graph database to enable efficient matching of consultants to projects based on skills, experience, and availability.
+The Data-Driven Staffing API is a RESTful service for managing consultants, their skills, companies, and project assignments in a consulting firm. Built on **Neo4j** (graph database) and **Spring Boot**, it enables efficient matching of consultants to projects based on skills, experience, and availability.
 
-### Base URL
+### Key Concepts
 
-All endpoints are prefixed with:
+- **Skills** represent competencies such as "Java", "React", or "DevOps". Each skill can have synonyms (e.g., "JS" for "JavaScript").
+- **Companies** are client organizations that own projects (e.g., "Equinor", "DNB").
+- **Consultants** are people with skills who are assigned to projects. Each consultant tracks availability, experience, and preferred work setup.
+- **Projects** are client engagements owned by a company, with required skills and defined roles.
+- **Relationships** connect these entities: Consultants have skills (`HAS_SKILL`), are assigned to projects (`ASSIGNED_TO`), and projects require skills (`REQUIRES_SKILL`) and belong to companies (`OWNED_BY`).
 
-```
-http://localhost:8080/api/v1
-```
+### ID Format
 
-### Content Type
-
-All requests and responses use JSON:
-
-```
-Content-Type: application/json
-```
-
-### Proficiency Levels
-
-The system uses four proficiency levels for skills and technologies:
-
-| Level | Description |
-|-------|-------------|
-| `BEGINNER` | Basic understanding, limited practical experience |
-| `INTERMEDIATE` | Solid understanding, can work independently |
-| `ADVANCED` | Deep knowledge, can mentor others |
-| `EXPERT` | Mastery level, recognized authority |
+All entities use **UUID strings** as their identifier (e.g., `"550e8400-e29b-41d4-a716-446655440001"`).
 
 ---
 
-## Authentication
+## Getting Started
 
-*Currently, the API does not require authentication. This section will be updated when authentication is implemented.*
+### Prerequisites
+
+- Java 21
+- Docker (for Neo4j)
+- Maven 3.9+
+
+### 1. Start Neo4j
+
+```bash
+docker-compose up -d
+```
+
+This starts Neo4j on `bolt://localhost:7687` with credentials `neo4j/password`.
+
+### 2. Run the Application
+
+```bash
+./mvnw spring-boot:run
+```
+
+The application starts on `http://localhost:8080` and loads sample data automatically when running with the dev profile.
+
+### 3. Verify
+
+```bash
+curl http://localhost:8080/api/v1/skills
+```
+
+You should see a JSON array of skills loaded from the sample data.
 
 ---
 
 ## Error Handling
 
-### Error Response Format
+All errors return a consistent JSON structure:
 
 ```json
 {
   "status": 404,
   "error": "Not Found",
-  "message": "Consultant not found with id: 123e4567-e89b-12d3-a456-426614174000",
-  "timestamp": "2026-02-04T10:30:00"
+  "message": "Consultant not found with id: 550e8400-...",
+  "timestamp": "2026-02-16T10:30:00"
 }
 ```
 
-### HTTP Status Codes
+### Status Codes
 
-| Code | Description |
-|------|-------------|
+| Code | Meaning |
+|------|---------|
 | `200 OK` | Request succeeded |
-| `201 Created` | Resource created successfully |
-| `204 No Content` | Resource deleted successfully |
-| `400 Bad Request` | Invalid request (validation error) |
+| `201 Created` | Resource created |
+| `204 No Content` | Resource deleted |
+| `400 Bad Request` | Validation error or invalid input |
 | `404 Not Found` | Resource not found |
-| `500 Internal Server Error` | Server error |
-
----
-
-## Endpoints
+| `500 Internal Server Error` | Unexpected server error |
 
 ---
 
 ## Skills
 
-Skills represent competencies that consultants can have (e.g., Project Management, System Architecture).
+Skills represent competencies that consultants can have and projects can require.
 
 ### Create Skill
 
-Creates a new skill with optional synonyms.
+**`POST /api/v1/skills`**
 
-**Endpoint:** `POST /skills`
+Creates a new skill with optional synonyms. Synonyms allow flexible matching (e.g., searching "JS" can find "JavaScript").
 
 **Request Body:**
 
 | Field | Type | Required | Description |
 |-------|------|----------|-------------|
 | `name` | string | Yes | Skill name |
-| `synonyms` | array | No | Alternative names for the skill |
+| `synonyms` | string[] | No | Alternative names for the skill |
 
-**Example Request:**
+**Example:**
 
 ```bash
 curl -X POST http://localhost:8080/api/v1/skills \
   -H "Content-Type: application/json" \
   -d '{
     "name": "Project Management",
-    "synonyms": ["PM", "Prosjektledelse", "Project Lead"]
+    "synonyms": ["PM", "Prosjektledelse"]
   }'
 ```
 
-**Example Response (201 Created):**
-
-```json
-{
-  "id": "550e8400-e29b-41d4-a716-446655440001",
-  "name": "Project Management",
-  "synonyms": ["PM", "Prosjektledelse", "Project Lead"]
-}
-```
-
----
-
-### Get All Skills
-
-Retrieves all skills in the system.
-
-**Endpoint:** `GET /skills`
-
-**Example Request:**
-
-```bash
-curl http://localhost:8080/api/v1/skills
-```
-
-**Example Response (200 OK):**
-
-```json
-[
-  {
-    "id": "550e8400-e29b-41d4-a716-446655440001",
-    "name": "Project Management",
-    "synonyms": ["PM", "Prosjektledelse"]
-  },
-  {
-    "id": "550e8400-e29b-41d4-a716-446655440002",
-    "name": "System Architecture",
-    "synonyms": ["Solution Architecture", "Software Architecture"]
-  }
-]
-```
-
----
-
-### Get Skill by ID
-
-Retrieves a specific skill by its UUID.
-
-**Endpoint:** `GET /skills/{id}`
-
-**Path Parameters:**
-
-| Parameter | Type | Description |
-|-----------|------|-------------|
-| `id` | string (UUID) | Skill ID |
-
-**Example Request:**
-
-```bash
-curl http://localhost:8080/api/v1/skills/550e8400-e29b-41d4-a716-446655440001
-```
-
-**Example Response (200 OK):**
+**Response `201 Created`:**
 
 ```json
 {
@@ -187,264 +136,76 @@ curl http://localhost:8080/api/v1/skills/550e8400-e29b-41d4-a716-446655440001
 }
 ```
 
-**Example Error Response (404 Not Found):**
+### Get All Skills
 
-```json
-{
-  "status": 404,
-  "error": "Not Found",
-  "message": "Skill not found with id: 550e8400-e29b-41d4-a716-446655440099",
-  "timestamp": "2026-02-04T10:30:00"
-}
-```
+**`GET /api/v1/skills`**
 
----
-
-### Search Skills
-
-Searches for skills by name (case-insensitive partial match).
-
-**Endpoint:** `GET /skills/search`
-
-**Query Parameters:**
-
-| Parameter | Type | Required | Description |
-|-----------|------|----------|-------------|
-| `query` | string | Yes | Search term |
-
-**Example Request:**
+Returns all skills in the system.
 
 ```bash
-curl "http://localhost:8080/api/v1/skills/search?query=management"
+curl http://localhost:8080/api/v1/skills
 ```
 
-**Example Response (200 OK):**
+**Response `200 OK`:**
 
 ```json
 [
   {
-    "id": "550e8400-e29b-41d4-a716-446655440001",
-    "name": "Project Management",
-    "synonyms": ["PM", "Prosjektledelse"]
+    "id": "550e8400-...",
+    "name": "Java",
+    "synonyms": ["Java SE", "Java EE", "JDK"]
   },
   {
-    "id": "550e8400-e29b-41d4-a716-446655440003",
-    "name": "Change Management",
-    "synonyms": []
-  }
-]
-```
-
----
-
-### Update Skill
-
-Updates an existing skill.
-
-**Endpoint:** `PUT /skills/{id}`
-
-**Path Parameters:**
-
-| Parameter | Type | Description |
-|-----------|------|-------------|
-| `id` | string (UUID) | Skill ID |
-
-**Example Request:**
-
-```bash
-curl -X PUT http://localhost:8080/api/v1/skills/550e8400-e29b-41d4-a716-446655440001 \
-  -H "Content-Type: application/json" \
-  -d '{
-    "name": "Project Management",
-    "synonyms": ["PM", "Prosjektledelse", "Project Lead", "PMP"]
-  }'
-```
-
-**Example Response (200 OK):**
-
-```json
-{
-  "id": "550e8400-e29b-41d4-a716-446655440001",
-  "name": "Project Management",
-  "synonyms": ["PM", "Prosjektledelse", "Project Lead", "PMP"]
-}
-```
-
----
-
-### Delete Skill
-
-Deletes a skill from the system.
-
-**Endpoint:** `DELETE /skills/{id}`
-
-**Path Parameters:**
-
-| Parameter | Type | Description |
-|-----------|------|-------------|
-| `id` | string (UUID) | Skill ID |
-
-**Example Request:**
-
-```bash
-curl -X DELETE http://localhost:8080/api/v1/skills/550e8400-e29b-41d4-a716-446655440001
-```
-
-**Response:** `204 No Content` (empty body)
-
----
-
-## Technologies
-
-Technologies represent technical tools and frameworks (e.g., Java, React, Neo4j).
-
-### Create Technology
-
-Creates a new technology with optional synonyms.
-
-**Endpoint:** `POST /technologies`
-
-**Request Body:**
-
-| Field | Type | Required | Description |
-|-------|------|----------|-------------|
-| `name` | string | Yes | Technology name |
-| `synonyms` | array | No | Alternative names |
-
-**Example Request:**
-
-```bash
-curl -X POST http://localhost:8080/api/v1/technologies \
-  -H "Content-Type: application/json" \
-  -d '{
-    "name": "Java",
-    "synonyms": ["JDK", "Java SE", "Java EE"]
-  }'
-```
-
-**Example Response (201 Created):**
-
-```json
-{
-  "id": "660e8400-e29b-41d4-a716-446655440001",
-  "name": "Java",
-  "synonyms": ["JDK", "Java SE", "Java EE"]
-}
-```
-
----
-
-### Get All Technologies
-
-**Endpoint:** `GET /technologies`
-
-**Example Request:**
-
-```bash
-curl http://localhost:8080/api/v1/technologies
-```
-
-**Example Response (200 OK):**
-
-```json
-[
-  {
-    "id": "660e8400-e29b-41d4-a716-446655440001",
-    "name": "Java",
-    "synonyms": ["JDK", "Java SE", "Java EE"]
-  },
-  {
-    "id": "660e8400-e29b-41d4-a716-446655440002",
+    "id": "550e8401-...",
     "name": "React",
     "synonyms": ["ReactJS", "React.js"]
   }
 ]
 ```
 
----
+### Get Skill by ID
 
-### Get Technology by ID
-
-**Endpoint:** `GET /technologies/{id}`
-
-**Example Request:**
+**`GET /api/v1/skills/{id}`**
 
 ```bash
-curl http://localhost:8080/api/v1/technologies/660e8400-e29b-41d4-a716-446655440001
+curl http://localhost:8080/api/v1/skills/550e8400-e29b-41d4-a716-446655440001
 ```
 
-**Example Response (200 OK):**
+Returns `404` if the skill does not exist.
 
-```json
-{
-  "id": "660e8400-e29b-41d4-a716-446655440001",
-  "name": "Java",
-  "synonyms": ["JDK", "Java SE", "Java EE"]
-}
-```
+### Search Skills
 
----
+**`GET /api/v1/skills/search?query={query}`**
 
-### Search Technologies
-
-**Endpoint:** `GET /technologies/search`
-
-**Query Parameters:**
-
-| Parameter | Type | Required | Description |
-|-----------|------|----------|-------------|
-| `query` | string | Yes | Search term |
-
-**Example Request:**
+Case-insensitive partial match on skill name.
 
 ```bash
-curl "http://localhost:8080/api/v1/technologies/search?query=java"
+curl "http://localhost:8080/api/v1/skills/search?query=java"
 ```
 
-**Example Response (200 OK):**
+This returns all skills whose name contains "java" (e.g., "Java", "JavaScript").
 
-```json
-[
-  {
-    "id": "660e8400-e29b-41d4-a716-446655440001",
-    "name": "Java",
-    "synonyms": ["JDK", "Java SE", "Java EE"]
-  },
-  {
-    "id": "660e8400-e29b-41d4-a716-446655440003",
-    "name": "JavaScript",
-    "synonyms": ["JS", "ECMAScript"]
-  }
-]
-```
+### Update Skill
 
----
+**`PUT /api/v1/skills/{id}`**
 
-### Update Technology
-
-**Endpoint:** `PUT /technologies/{id}`
-
-**Example Request:**
+Replaces the skill's name and synonyms.
 
 ```bash
-curl -X PUT http://localhost:8080/api/v1/technologies/660e8400-e29b-41d4-a716-446655440001 \
+curl -X PUT http://localhost:8080/api/v1/skills/550e8400-... \
   -H "Content-Type: application/json" \
   -d '{
     "name": "Java",
-    "synonyms": ["JDK", "Java SE", "Java EE", "OpenJDK"]
+    "synonyms": ["Java SE", "Java EE", "JDK", "OpenJDK"]
   }'
 ```
 
----
+### Delete Skill
 
-### Delete Technology
-
-**Endpoint:** `DELETE /technologies/{id}`
-
-**Example Request:**
+**`DELETE /api/v1/skills/{id}`**
 
 ```bash
-curl -X DELETE http://localhost:8080/api/v1/technologies/660e8400-e29b-41d4-a716-446655440001
+curl -X DELETE http://localhost:8080/api/v1/skills/550e8400-...
 ```
 
 **Response:** `204 No Content`
@@ -457,16 +218,12 @@ Companies represent client organizations that own projects.
 
 ### Create Company
 
-**Endpoint:** `POST /companies`
-
-**Request Body:**
+**`POST /api/v1/companies`**
 
 | Field | Type | Required | Description |
 |-------|------|----------|-------------|
 | `name` | string | Yes | Company name |
-| `field` | string | No | Industry/sector |
-
-**Example Request:**
+| `field` | string | No | Industry/sector (e.g., "Energy", "Finance") |
 
 ```bash
 curl -X POST http://localhost:8080/api/v1/companies \
@@ -477,133 +234,60 @@ curl -X POST http://localhost:8080/api/v1/companies \
   }'
 ```
 
-**Example Response (201 Created):**
+**Response `201 Created`:**
 
 ```json
 {
-  "id": "770e8400-e29b-41d4-a716-446655440001",
+  "id": "770e8400-...",
   "name": "Equinor",
   "field": "Energy"
 }
 ```
 
----
-
 ### Get All Companies
 
-**Endpoint:** `GET /companies`
-
-**Example Request:**
-
-```bash
-curl http://localhost:8080/api/v1/companies
-```
-
-**Example Response (200 OK):**
-
-```json
-[
-  {
-    "id": "770e8400-e29b-41d4-a716-446655440001",
-    "name": "Equinor",
-    "field": "Energy"
-  },
-  {
-    "id": "770e8400-e29b-41d4-a716-446655440002",
-    "name": "DNB",
-    "field": "Finance"
-  }
-]
-```
-
----
+**`GET /api/v1/companies`**
 
 ### Get Company by ID
 
-**Endpoint:** `GET /companies/{id}`
-
-**Example Request:**
-
-```bash
-curl http://localhost:8080/api/v1/companies/770e8400-e29b-41d4-a716-446655440001
-```
-
----
+**`GET /api/v1/companies/{id}`**
 
 ### Search Companies
 
-**Endpoint:** `GET /companies/search`
+**`GET /api/v1/companies/search?query={query}`**
 
-**Query Parameters:**
-
-| Parameter | Type | Required | Description |
-|-----------|------|----------|-------------|
-| `query` | string | Yes | Search term |
-
-**Example Request:**
+Case-insensitive partial match on company name.
 
 ```bash
 curl "http://localhost:8080/api/v1/companies/search?query=equi"
 ```
 
----
-
 ### Get Companies by Field
 
-**Endpoint:** `GET /companies/by-field`
+**`GET /api/v1/companies/by-field?field={field}`**
 
-**Query Parameters:**
-
-| Parameter | Type | Required | Description |
-|-----------|------|----------|-------------|
-| `field` | string | Yes | Industry/sector |
-
-**Example Request:**
+Returns all companies in a given industry/sector.
 
 ```bash
-curl "http://localhost:8080/api/v1/companies/by-field?field=Energy"
+curl "http://localhost:8080/api/v1/companies/by-field?field=IT-konsulent"
 ```
-
-**Example Response (200 OK):**
-
-```json
-[
-  {
-    "id": "770e8400-e29b-41d4-a716-446655440001",
-    "name": "Equinor",
-    "field": "Energy"
-  }
-]
-```
-
----
 
 ### Update Company
 
-**Endpoint:** `PUT /companies/{id}`
-
-**Example Request:**
+**`PUT /api/v1/companies/{id}`**
 
 ```bash
-curl -X PUT http://localhost:8080/api/v1/companies/770e8400-e29b-41d4-a716-446655440001 \
+curl -X PUT http://localhost:8080/api/v1/companies/770e8400-... \
   -H "Content-Type: application/json" \
   -d '{
     "name": "Equinor ASA",
-    "field": "Energy"
+    "field": "Energi og Olje"
   }'
 ```
 
----
-
 ### Delete Company
 
-**Endpoint:** `DELETE /companies/{id}`
-
-**Example Request:**
-
-```bash
-curl -X DELETE http://localhost:8080/api/v1/companies/770e8400-e29b-41d4-a716-446655440001
-```
+**`DELETE /api/v1/companies/{id}`**
 
 **Response:** `204 No Content`
 
@@ -611,36 +295,32 @@ curl -X DELETE http://localhost:8080/api/v1/companies/770e8400-e29b-41d4-a716-44
 
 ## Consultants
 
-Consultants are the core entities representing people with skills and technologies.
+Consultants are the core entities: people with skills who get assigned to projects.
 
 ### Create Consultant
 
-**Endpoint:** `POST /consultants`
-
-**Request Body:**
+**`POST /api/v1/consultants`**
 
 | Field | Type | Required | Description |
 |-------|------|----------|-------------|
 | `name` | string | Yes | Full name |
-| `email` | string | Yes | Email address (must be valid) |
-| `role` | string | No | Job title/role |
-| `yearsOfExperience` | integer | No | Total years of experience |
-| `availability` | boolean | No | Currently available for projects |
-| `wantsNewProject` | boolean | No | Seeking new project assignment |
-| `openToRelocation` | boolean | No | Willing to relocate |
-| `openToRemote` | boolean | No | Open to remote work |
-| `preferredRegions` | array | No | Preferred work locations |
+| `email` | string | Yes | Valid email address |
+| `yearsOfExperience` | integer | No | Total years of professional experience |
+| `availability` | boolean | No | Currently available for new assignments (default: false) |
+| `wantsNewProject` | boolean | No | Actively seeking a new project (default: false) |
+| `openToRelocation` | boolean | No | Willing to relocate (default: false) |
+| `openToRemote` | boolean | No | Open to remote work (default: false) |
+| `preferredRegions` | string[] | No | Preferred work locations (e.g., ["Oslo", "Bergen"]) |
 
-**Example Request:**
+**Example:**
 
 ```bash
 curl -X POST http://localhost:8080/api/v1/consultants \
   -H "Content-Type: application/json" \
   -d '{
-    "name": "Hugo Harnæs",
-    "email": "hugo.harnaes@accenture.com",
-    "role": "Software Developer",
-    "yearsOfExperience": 3,
+    "name": "Ola Nordmann",
+    "email": "ola.nordmann@example.com",
+    "yearsOfExperience": 8,
     "availability": true,
     "wantsNewProject": true,
     "openToRelocation": false,
@@ -649,58 +329,42 @@ curl -X POST http://localhost:8080/api/v1/consultants \
   }'
 ```
 
-**Example Response (201 Created):**
+**Response `201 Created`:**
 
 ```json
 {
-  "id": "880e8400-e29b-41d4-a716-446655440001",
-  "name": "Hugo Harnæs",
-  "email": "hugo.harnaes@accenture.com",
-  "role": "Software Developer",
-  "yearsOfExperience": 3,
+  "id": "880e8400-...",
+  "name": "Ola Nordmann",
+  "email": "ola.nordmann@example.com",
+  "yearsOfExperience": 8,
   "availability": true,
   "wantsNewProject": true,
   "openToRelocation": false,
   "openToRemote": true,
   "preferredRegions": ["Oslo", "Bergen"],
   "skills": [],
-  "technologies": []
+  "projectAssignments": []
 }
 ```
 
----
-
 ### Get All Consultants
 
-**Endpoint:** `GET /consultants`
+**`GET /api/v1/consultants`**
 
-**Example Request:**
-
-```bash
-curl http://localhost:8080/api/v1/consultants
-```
-
----
+Returns all consultants with their skills and project assignments.
 
 ### Get Consultant by ID
 
-**Endpoint:** `GET /consultants/{id}`
+**`GET /api/v1/consultants/{id}`**
 
-**Example Request:**
-
-```bash
-curl http://localhost:8080/api/v1/consultants/880e8400-e29b-41d4-a716-446655440001
-```
-
-**Example Response (200 OK):**
+**Response `200 OK`:**
 
 ```json
 {
-  "id": "880e8400-e29b-41d4-a716-446655440001",
-  "name": "Hugo Harnæs",
-  "email": "hugo.harnaes@accenture.com",
-  "role": "Software Developer",
-  "yearsOfExperience": 3,
+  "id": "880e8400-...",
+  "name": "Ola Nordmann",
+  "email": "ola.nordmann@example.com",
+  "yearsOfExperience": 8,
   "availability": true,
   "wantsNewProject": true,
   "openToRelocation": false,
@@ -708,165 +372,123 @@ curl http://localhost:8080/api/v1/consultants/880e8400-e29b-41d4-a716-4466554400
   "preferredRegions": ["Oslo", "Bergen"],
   "skills": [
     {
-      "skillId": "550e8400-e29b-41d4-a716-446655440001",
-      "skillName": "Project Management",
-      "level": "INTERMEDIATE"
+      "skillId": "550e8400-...",
+      "skillName": "Java",
+      "skillYearsOfExperience": 8
+    },
+    {
+      "skillId": "550e8401-...",
+      "skillName": "Spring Framework",
+      "skillYearsOfExperience": 8
     }
   ],
-  "technologies": [
+  "projectAssignments": [
     {
-      "technologyId": "660e8400-e29b-41d4-a716-446655440001",
-      "technologyName": "Java",
-      "level": "ADVANCED",
-      "yearsExperience": 3
+      "projectId": "990e8400-...",
+      "projectName": "Modernisering av nettbank",
+      "role": "Senior Backend Developer",
+      "allocationPercent": null,
+      "isActive": false
     }
   ]
 }
 ```
 
----
-
 ### Get Consultant by Email
 
-**Endpoint:** `GET /consultants/by-email`
-
-**Query Parameters:**
-
-| Parameter | Type | Required | Description |
-|-----------|------|----------|-------------|
-| `email` | string | Yes | Email address |
-
-**Example Request:**
+**`GET /api/v1/consultants/by-email?email={email}`**
 
 ```bash
-curl "http://localhost:8080/api/v1/consultants/by-email?email=hugo.harnaes@accenture.com"
+curl "http://localhost:8080/api/v1/consultants/by-email?email=ola.nordmann@example.com"
 ```
-
----
 
 ### Get Available Consultants
 
-Returns consultants where `availability = true`.
+**`GET /api/v1/consultants/available`**
 
-**Endpoint:** `GET /consultants/available`
-
-**Example Request:**
-
-```bash
-curl http://localhost:8080/api/v1/consultants/available
-```
-
----
+Returns all consultants where `availability = true`.
 
 ### Get Consultants Wanting New Project
 
-Returns consultants where `wantsNewProject = true`.
+**`GET /api/v1/consultants/wanting-new-project`**
 
-**Endpoint:** `GET /consultants/wanting-new-project`
-
-**Example Request:**
-
-```bash
-curl http://localhost:8080/api/v1/consultants/wanting-new-project
-```
-
----
+Returns all consultants where `wantsNewProject = true`.
 
 ### Get Consultants by Skills
 
+**`GET /api/v1/consultants/by-skills?skillNames={skill1}&skillNames={skill2}`**
+
 Returns consultants that have any of the specified skills.
 
-**Endpoint:** `GET /consultants/by-skills`
-
-**Query Parameters:**
-
-| Parameter | Type | Required | Description |
-|-----------|------|----------|-------------|
-| `skillNames` | array | Yes | List of skill names |
-
-**Example Request:**
-
 ```bash
-curl "http://localhost:8080/api/v1/consultants/by-skills?skillNames=Project%20Management&skillNames=System%20Architecture"
+curl "http://localhost:8080/api/v1/consultants/by-skills?skillNames=Java&skillNames=React"
 ```
-
-**Example Response (200 OK):**
-
-```json
-[
-  {
-    "id": "880e8400-e29b-41d4-a716-446655440001",
-    "name": "Hugo Harnæs",
-    "email": "hugo.harnaes@accenture.com",
-    "skills": [
-      {
-        "skillId": "550e8400-e29b-41d4-a716-446655440001",
-        "skillName": "Project Management",
-        "level": "INTERMEDIATE"
-      }
-    ],
-    "technologies": []
-  }
-]
-```
-
----
-
-### Get Consultants by Technologies
-
-Returns consultants that know any of the specified technologies.
-
-**Endpoint:** `GET /consultants/by-technologies`
-
-**Query Parameters:**
-
-| Parameter | Type | Required | Description |
-|-----------|------|----------|-------------|
-| `technologyNames` | array | Yes | List of technology names |
-
-**Example Request:**
-
-```bash
-curl "http://localhost:8080/api/v1/consultants/by-technologies?technologyNames=Java&technologyNames=React"
-```
-
----
 
 ### Get Available Consultants with Minimum Experience
 
-Returns available consultants with at least the specified years of experience.
+**`GET /api/v1/consultants/available-with-experience?minYears={years}`**
 
-**Endpoint:** `GET /consultants/available-with-experience`
-
-**Query Parameters:**
-
-| Parameter | Type | Required | Description |
-|-----------|------|----------|-------------|
-| `minYears` | integer | Yes | Minimum years of experience |
-
-**Example Request:**
+Returns available consultants with at least the given years of experience.
 
 ```bash
 curl "http://localhost:8080/api/v1/consultants/available-with-experience?minYears=5"
 ```
 
----
+### Search Consultants (Advanced)
+
+**`GET /api/v1/consultants/search`**
+
+This is the most powerful endpoint. It combines multiple filters in a single query. All parameters are optional; only the ones you provide are applied.
+
+**Query Parameters:**
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `skillNames` | string[] | Filter by skill names (consultant must have at least one) |
+| `role` | string | Filter by role title (partial match, case-insensitive, matches roles on project assignments) |
+| `minYearsOfExperience` | integer | Minimum total years of experience |
+| `availability` | boolean | Filter by availability status |
+| `wantsNewProject` | boolean | Filter by "wants new project" status |
+| `openToRemote` | boolean | Filter by remote work preference |
+| `openToRelocation` | boolean | Filter by relocation preference |
+| `previousCompanies` | string[] | Filter by companies the consultant has worked with (via project assignments) |
+| `startDate` | long | Availability window start (epoch milliseconds). Excludes consultants with conflicting active assignments |
+| `endDate` | long | Availability window end (epoch milliseconds). Used together with startDate |
+
+**Example: Find available Java developers open to remote work:**
+
+```bash
+curl "http://localhost:8080/api/v1/consultants/search?skillNames=Java&availability=true&openToRemote=true"
+```
+
+**Example: Find consultants with DNB experience and 5+ years:**
+
+```bash
+curl "http://localhost:8080/api/v1/consultants/search?previousCompanies=DNB&minYearsOfExperience=5"
+```
+
+**Example: Find available Tech Lead consultants with React and Node.js skills:**
+
+```bash
+curl "http://localhost:8080/api/v1/consultants/search?role=Tech%20Lead&skillNames=React&skillNames=Node.js&availability=true"
+```
+
+**Response `200 OK`:** Returns the same consultant structure as Get Consultant by ID, including all skills and project assignments for each matched consultant.
 
 ### Update Consultant
 
-**Endpoint:** `PUT /consultants/{id}`
+**`PUT /api/v1/consultants/{id}`**
 
-**Example Request:**
+Updates the consultant's basic information. Does not affect skills or project assignments.
 
 ```bash
-curl -X PUT http://localhost:8080/api/v1/consultants/880e8400-e29b-41d4-a716-446655440001 \
+curl -X PUT http://localhost:8080/api/v1/consultants/880e8400-... \
   -H "Content-Type: application/json" \
   -d '{
-    "name": "Hugo Harnæs",
-    "email": "hugo.harnaes@accenture.com",
-    "role": "Senior Software Developer",
-    "yearsOfExperience": 4,
-    "availability": true,
+    "name": "Ola Nordmann",
+    "email": "ola.nordmann@example.com",
+    "yearsOfExperience": 9,
+    "availability": false,
     "wantsNewProject": false,
     "openToRelocation": false,
     "openToRemote": true,
@@ -874,141 +496,54 @@ curl -X PUT http://localhost:8080/api/v1/consultants/880e8400-e29b-41d4-a716-446
   }'
 ```
 
----
-
 ### Delete Consultant
 
-**Endpoint:** `DELETE /consultants/{id}`
-
-**Example Request:**
-
-```bash
-curl -X DELETE http://localhost:8080/api/v1/consultants/880e8400-e29b-41d4-a716-446655440001
-```
+**`DELETE /api/v1/consultants/{id}`**
 
 **Response:** `204 No Content`
 
----
-
 ### Add Skill to Consultant
 
-Adds a skill relationship (HAS_SKILL) between a consultant and a skill.
+**`POST /api/v1/consultants/{id}/skills`**
 
-**Endpoint:** `POST /consultants/{id}/skills`
-
-**Path Parameters:**
-
-| Parameter | Type | Description |
-|-----------|------|-------------|
-| `id` | string (UUID) | Consultant ID |
-
-**Request Body:**
+Creates a `HAS_SKILL` relationship between the consultant and an existing skill.
 
 | Field | Type | Required | Description |
 |-------|------|----------|-------------|
-| `skillId` | string | Yes | Skill UUID |
-| `level` | string | Yes | Proficiency level |
+| `skillId` | string | Yes | UUID of the skill to add |
+| `skillYearsOfExperience` | integer | No | Years of experience with this specific skill |
 
-**Example Request:**
+**Example:**
 
 ```bash
-curl -X POST http://localhost:8080/api/v1/consultants/880e8400-e29b-41d4-a716-446655440001/skills \
+curl -X POST http://localhost:8080/api/v1/consultants/880e8400-.../skills \
   -H "Content-Type: application/json" \
   -d '{
     "skillId": "550e8400-e29b-41d4-a716-446655440001",
-    "level": "ADVANCED"
+    "skillYearsOfExperience": 5
   }'
 ```
 
-**Example Response (200 OK):**
-
-```json
-{
-  "id": "880e8400-e29b-41d4-a716-446655440001",
-  "name": "Hugo Harnæs",
-  "skills": [
-    {
-      "skillId": "550e8400-e29b-41d4-a716-446655440001",
-      "skillName": "Project Management",
-      "level": "ADVANCED"
-    }
-  ],
-  "technologies": []
-}
-```
-
----
-
-### Add Technology to Consultant
-
-Adds a technology relationship (KNOWS) between a consultant and a technology.
-
-**Endpoint:** `POST /consultants/{id}/technologies`
-
-**Path Parameters:**
-
-| Parameter | Type | Description |
-|-----------|------|-------------|
-| `id` | string (UUID) | Consultant ID |
-
-**Request Body:**
-
-| Field | Type | Required | Description |
-|-------|------|----------|-------------|
-| `technologyId` | string | Yes | Technology UUID |
-| `level` | string | Yes | Proficiency level |
-| `yearsExperience` | integer | No | Years using this technology |
-
-**Example Request:**
-
-```bash
-curl -X POST http://localhost:8080/api/v1/consultants/880e8400-e29b-41d4-a716-446655440001/technologies \
-  -H "Content-Type: application/json" \
-  -d '{
-    "technologyId": "660e8400-e29b-41d4-a716-446655440001",
-    "level": "EXPERT",
-    "yearsExperience": 5
-  }'
-```
-
-**Example Response (200 OK):**
-
-```json
-{
-  "id": "880e8400-e29b-41d4-a716-446655440001",
-  "name": "Hugo Harnæs",
-  "skills": [],
-  "technologies": [
-    {
-      "technologyId": "660e8400-e29b-41d4-a716-446655440001",
-      "technologyName": "Java",
-      "level": "EXPERT",
-      "yearsExperience": 5
-    }
-  ]
-}
-```
+**Response `200 OK`:** Returns the full consultant object with the newly added skill.
 
 ---
 
 ## Projects
 
-Projects represent client engagements that require specific skills and technologies.
+Projects represent client engagements that require specific skills and roles.
 
 ### Create Project
 
-**Endpoint:** `POST /projects`
-
-**Request Body:**
+**`POST /api/v1/projects`**
 
 | Field | Type | Required | Description |
 |-------|------|----------|-------------|
 | `name` | string | Yes | Project name |
-| `requirements` | array | No | List of requirements |
-| `date` | string | No | Start date (ISO 8601) |
-| `companyId` | string | No | Company UUID to assign |
+| `requirements` | string[] | No | List of requirement descriptions |
+| `date` | string | No | Start date in ISO 8601 format (e.g., `"2026-03-01T09:00:00"`) |
+| `companyId` | string | No | UUID of the company to assign. If provided, the project is immediately linked to this company |
 
-**Example Request:**
+**Example:**
 
 ```bash
 curl -X POST http://localhost:8080/api/v1/projects \
@@ -1021,416 +556,191 @@ curl -X POST http://localhost:8080/api/v1/projects \
   }'
 ```
 
-**Example Response (201 Created):**
+**Response `201 Created`:**
 
 ```json
 {
-  "id": "990e8400-e29b-41d4-a716-446655440001",
+  "id": "990e8400-...",
   "name": "Digital Transformation Platform",
   "requirements": ["Cloud migration", "API development", "Security compliance"],
   "date": "2026-03-01T09:00:00",
   "company": {
-    "id": "770e8400-e29b-41d4-a716-446655440001",
+    "id": "770e8400-...",
     "name": "Equinor",
     "field": "Energy"
   },
   "requiredSkills": [],
-  "requiredTechnologies": []
+  "roles": {}
 }
 ```
-
----
 
 ### Get All Projects
 
-**Endpoint:** `GET /projects`
-
-**Example Request:**
-
-```bash
-curl http://localhost:8080/api/v1/projects
-```
-
----
+**`GET /api/v1/projects`**
 
 ### Get Project by ID
 
-**Endpoint:** `GET /projects/{id}`
+**`GET /api/v1/projects/{id}`**
 
-**Example Request:**
-
-```bash
-curl http://localhost:8080/api/v1/projects/990e8400-e29b-41d4-a716-446655440001
-```
-
-**Example Response (200 OK):**
+**Response `200 OK`:**
 
 ```json
 {
-  "id": "990e8400-e29b-41d4-a716-446655440001",
-  "name": "Digital Transformation Platform",
-  "requirements": ["Cloud migration", "API development"],
-  "date": "2026-03-01T09:00:00",
+  "id": "990e8400-...",
+  "name": "Modernisering av nettbank",
+  "requirements": ["Bygge ny nettbanklosning", "Implementere sanntids transaksjoner"],
+  "date": "2026-02-16T12:00:00",
   "company": {
-    "id": "770e8400-e29b-41d4-a716-446655440001",
-    "name": "Equinor",
-    "field": "Energy"
+    "id": "770e8400-...",
+    "name": "DNB",
+    "field": "Bank og Finans"
   },
   "requiredSkills": [
     {
-      "skillId": "550e8400-e29b-41d4-a716-446655440001",
-      "skillName": "Project Management",
-      "minLevel": "INTERMEDIATE",
+      "skillId": "550e8400-...",
+      "skillName": "Java",
+      "minYearsOfExperience": 5,
+      "isMandatory": true
+    },
+    {
+      "skillId": "550e8401-...",
+      "skillName": "React",
+      "minYearsOfExperience": 3,
       "isMandatory": true
     }
   ],
-  "requiredTechnologies": [
-    {
-      "technologyId": "660e8400-e29b-41d4-a716-446655440001",
-      "technologyName": "Java",
-      "minLevel": "ADVANCED",
-      "isMandatory": true
-    }
-  ]
+  "roles": {
+    "Tech Lead": 1,
+    "Senior Backend Developer": 2,
+    "Senior Frontend Developer": 1,
+    "DevOps Engineer": 1
+  }
 }
 ```
 
----
-
 ### Get Project by Name
 
-**Endpoint:** `GET /projects/by-name`
-
-**Query Parameters:**
-
-| Parameter | Type | Required | Description |
-|-----------|------|----------|-------------|
-| `name` | string | Yes | Project name |
-
-**Example Request:**
+**`GET /api/v1/projects/by-name?name={name}`**
 
 ```bash
-curl "http://localhost:8080/api/v1/projects/by-name?name=Digital%20Transformation%20Platform"
+curl "http://localhost:8080/api/v1/projects/by-name?name=Modernisering%20av%20nettbank"
 ```
-
----
 
 ### Get Projects by Company
 
-Returns all projects owned by a specific company.
+**`GET /api/v1/projects/by-company/{companyId}`**
 
-**Endpoint:** `GET /projects/by-company/{companyId}`
-
-**Path Parameters:**
-
-| Parameter | Type | Description |
-|-----------|------|-------------|
-| `companyId` | string (UUID) | Company ID |
-
-**Example Request:**
+Returns all projects owned by the specified company.
 
 ```bash
-curl http://localhost:8080/api/v1/projects/by-company/770e8400-e29b-41d4-a716-446655440001
+curl http://localhost:8080/api/v1/projects/by-company/770e8400-...
 ```
-
----
 
 ### Get Projects by Required Skills
 
+**`GET /api/v1/projects/by-required-skills?skillNames={skill1}&skillNames={skill2}`**
+
 Returns projects that require any of the specified skills.
 
-**Endpoint:** `GET /projects/by-required-skills`
-
-**Query Parameters:**
-
-| Parameter | Type | Required | Description |
-|-----------|------|----------|-------------|
-| `skillNames` | array | Yes | List of skill names |
-
-**Example Request:**
-
 ```bash
-curl "http://localhost:8080/api/v1/projects/by-required-skills?skillNames=Project%20Management"
+curl "http://localhost:8080/api/v1/projects/by-required-skills?skillNames=Java&skillNames=Kubernetes"
 ```
-
----
-
-### Get Projects by Required Technologies
-
-Returns projects that require any of the specified technologies.
-
-**Endpoint:** `GET /projects/by-required-technologies`
-
-**Query Parameters:**
-
-| Parameter | Type | Required | Description |
-|-----------|------|----------|-------------|
-| `technologyNames` | array | Yes | List of technology names |
-
-**Example Request:**
-
-```bash
-curl "http://localhost:8080/api/v1/projects/by-required-technologies?technologyNames=Java&technologyNames=Spring%20Boot"
-```
-
----
 
 ### Update Project
 
-**Endpoint:** `PUT /projects/{id}`
+**`PUT /api/v1/projects/{id}`**
 
-**Example Request:**
+Updates project name, requirements, and date. Does not modify company assignment or required skills.
 
 ```bash
-curl -X PUT http://localhost:8080/api/v1/projects/990e8400-e29b-41d4-a716-446655440001 \
+curl -X PUT http://localhost:8080/api/v1/projects/990e8400-... \
   -H "Content-Type: application/json" \
   -d '{
     "name": "Digital Transformation Platform v2",
-    "requirements": ["Cloud migration", "API development", "Security compliance", "CI/CD"],
+    "requirements": ["Cloud migration", "API development", "CI/CD"],
     "date": "2026-04-01T09:00:00"
   }'
 ```
 
----
-
 ### Delete Project
 
-**Endpoint:** `DELETE /projects/{id}`
-
-**Example Request:**
-
-```bash
-curl -X DELETE http://localhost:8080/api/v1/projects/990e8400-e29b-41d4-a716-446655440001
-```
+**`DELETE /api/v1/projects/{id}`**
 
 **Response:** `204 No Content`
 
----
-
 ### Assign Company to Project
 
-Assigns a company as the owner of a project.
+**`POST /api/v1/projects/{id}/company/{companyId}`**
 
-**Endpoint:** `POST /projects/{id}/company/{companyId}`
-
-**Path Parameters:**
-
-| Parameter | Type | Description |
-|-----------|------|-------------|
-| `id` | string (UUID) | Project ID |
-| `companyId` | string (UUID) | Company ID |
-
-**Example Request:**
+Links a project to a company (creates the `OWNED_BY` relationship).
 
 ```bash
-curl -X POST http://localhost:8080/api/v1/projects/990e8400-e29b-41d4-a716-446655440001/company/770e8400-e29b-41d4-a716-446655440001
+curl -X POST http://localhost:8080/api/v1/projects/990e8400-.../company/770e8400-...
 ```
-
----
 
 ### Add Required Skill to Project
 
-Adds a skill requirement (REQUIRES_SKILL) to a project.
+**`POST /api/v1/projects/{id}/required-skills`**
 
-**Endpoint:** `POST /projects/{id}/required-skills`
-
-**Path Parameters:**
-
-| Parameter | Type | Description |
-|-----------|------|-------------|
-| `id` | string (UUID) | Project ID |
-
-**Request Body:**
+Adds a skill requirement (`REQUIRES_SKILL` relationship) to a project.
 
 | Field | Type | Required | Description |
 |-------|------|----------|-------------|
-| `skillId` | string | Yes | Skill UUID |
-| `minLevel` | string | Yes | Minimum proficiency level |
-| `isMandatory` | boolean | No | Whether skill is mandatory (default: false) |
+| `skillId` | string | Yes | UUID of the skill |
+| `minYearsOfExperience` | integer | Yes | Minimum years of experience needed (must be 0 or greater) |
+| `isMandatory` | boolean | No | Whether this skill is mandatory (default: false) |
 
-**Example Request:**
+**Example:**
 
 ```bash
-curl -X POST http://localhost:8080/api/v1/projects/990e8400-e29b-41d4-a716-446655440001/required-skills \
+curl -X POST http://localhost:8080/api/v1/projects/990e8400-.../required-skills \
   -H "Content-Type: application/json" \
   -d '{
     "skillId": "550e8400-e29b-41d4-a716-446655440001",
-    "minLevel": "INTERMEDIATE",
+    "minYearsOfExperience": 3,
     "isMandatory": true
   }'
 ```
 
-**Example Response (200 OK):**
-
-```json
-{
-  "id": "990e8400-e29b-41d4-a716-446655440001",
-  "name": "Digital Transformation Platform",
-  "requiredSkills": [
-    {
-      "skillId": "550e8400-e29b-41d4-a716-446655440001",
-      "skillName": "Project Management",
-      "minLevel": "INTERMEDIATE",
-      "isMandatory": true
-    }
-  ],
-  "requiredTechnologies": []
-}
-```
+**Response `200 OK`:** Returns the full project object with the newly added required skill.
 
 ---
 
-### Add Required Technology to Project
+## Data Model
 
-Adds a technology requirement (REQUIRES_TECHNOLOGY) to a project.
+The graph database uses the following structure:
 
-**Endpoint:** `POST /projects/{id}/required-technologies`
-
-**Path Parameters:**
-
-| Parameter | Type | Description |
-|-----------|------|-------------|
-| `id` | string (UUID) | Project ID |
-
-**Request Body:**
-
-| Field | Type | Required | Description |
-|-------|------|----------|-------------|
-| `technologyId` | string | Yes | Technology UUID |
-| `minLevel` | string | Yes | Minimum proficiency level |
-| `isMandatory` | boolean | No | Whether technology is mandatory (default: false) |
-
-**Example Request:**
-
-```bash
-curl -X POST http://localhost:8080/api/v1/projects/990e8400-e29b-41d4-a716-446655440001/required-technologies \
-  -H "Content-Type: application/json" \
-  -d '{
-    "technologyId": "660e8400-e29b-41d4-a716-446655440001",
-    "minLevel": "ADVANCED",
-    "isMandatory": true
-  }'
+```
+(Consultant)-[:HAS_SKILL {skillYearsOfExperience}]->(Skill)
+(Consultant)-[:ASSIGNED_TO {role, isActive, allocationPercent}]->(Project)
+(Project)-[:OWNED_BY]->(Company)
+(Project)-[:REQUIRES_SKILL {minYearsOfExperience, isMandatory}]->(Skill)
 ```
 
-**Example Response (200 OK):**
+### Relationship Properties
 
-```json
-{
-  "id": "990e8400-e29b-41d4-a716-446655440001",
-  "name": "Digital Transformation Platform",
-  "requiredSkills": [],
-  "requiredTechnologies": [
-    {
-      "technologyId": "660e8400-e29b-41d4-a716-446655440001",
-      "technologyName": "Java",
-      "minLevel": "ADVANCED",
-      "isMandatory": true
-    }
-  ]
-}
-```
+**HAS_SKILL** (Consultant to Skill):
 
----
+| Property | Type | Description |
+|----------|------|-------------|
+| `skillYearsOfExperience` | integer | Years of experience the consultant has with this skill |
 
-## Quick Start Guide
+**ASSIGNED_TO** (Consultant to Project):
 
-### Step 1: Start the Application
+| Property | Type | Description |
+|----------|------|-------------|
+| `role` | string | The consultant's role on this project (e.g., "Tech Lead") |
+| `isActive` | boolean | Whether this is a current (true) or past (false) assignment |
+| `allocationPercent` | integer | Percentage of time allocated (e.g., 100) |
+| `startDate` | date | Assignment start date |
+| `endDate` | date | Assignment end date |
 
-```bash
-# Start Neo4j
-docker-compose up -d
+**REQUIRES_SKILL** (Project to Skill):
 
-# Run the application
-./mvnw spring-boot:run
-```
-
-### Step 2: Create Base Data
-
-```bash
-# Create Skills
-curl -X POST http://localhost:8080/api/v1/skills \
-  -H "Content-Type: application/json" \
-  -d '{"name": "Project Management", "synonyms": ["PM"]}'
-
-curl -X POST http://localhost:8080/api/v1/skills \
-  -H "Content-Type: application/json" \
-  -d '{"name": "System Architecture", "synonyms": ["Solution Architecture"]}'
-
-# Create Technologies
-curl -X POST http://localhost:8080/api/v1/technologies \
-  -H "Content-Type: application/json" \
-  -d '{"name": "Java", "synonyms": ["JDK", "Java SE"]}'
-
-curl -X POST http://localhost:8080/api/v1/technologies \
-  -H "Content-Type: application/json" \
-  -d '{"name": "Spring Boot", "synonyms": ["Spring Framework"]}'
-
-# Create a Company
-curl -X POST http://localhost:8080/api/v1/companies \
-  -H "Content-Type: application/json" \
-  -d '{"name": "Equinor", "field": "Energy"}'
-```
-
-### Step 3: Get IDs
-
-```bash
-# Get all skills and note the IDs
-curl http://localhost:8080/api/v1/skills | jq
-
-# Get all technologies and note the IDs
-curl http://localhost:8080/api/v1/technologies | jq
-
-# Get all companies and note the IDs
-curl http://localhost:8080/api/v1/companies | jq
-```
-
-### Step 4: Create Consultant with Skills
-
-```bash
-# Create consultant
-curl -X POST http://localhost:8080/api/v1/consultants \
-  -H "Content-Type: application/json" \
-  -d '{
-    "name": "Test Consultant",
-    "email": "test@example.com",
-    "role": "Developer",
-    "yearsOfExperience": 5,
-    "availability": true
-  }'
-
-# Add skill (replace IDs with actual values)
-curl -X POST http://localhost:8080/api/v1/consultants/{CONSULTANT_ID}/skills \
-  -H "Content-Type: application/json" \
-  -d '{"skillId": "{SKILL_ID}", "level": "ADVANCED"}'
-
-# Add technology (replace IDs with actual values)
-curl -X POST http://localhost:8080/api/v1/consultants/{CONSULTANT_ID}/technologies \
-  -H "Content-Type: application/json" \
-  -d '{"technologyId": "{TECH_ID}", "level": "EXPERT", "yearsExperience": 5}'
-```
-
-### Step 5: Create Project with Requirements
-
-```bash
-# Create project (replace COMPANY_ID)
-curl -X POST http://localhost:8080/api/v1/projects \
-  -H "Content-Type: application/json" \
-  -d '{
-    "name": "New Project",
-    "requirements": ["Requirement 1"],
-    "companyId": "{COMPANY_ID}"
-  }'
-
-# Add required skill (replace IDs)
-curl -X POST http://localhost:8080/api/v1/projects/{PROJECT_ID}/required-skills \
-  -H "Content-Type: application/json" \
-  -d '{"skillId": "{SKILL_ID}", "minLevel": "INTERMEDIATE", "isMandatory": true}'
-
-# Add required technology (replace IDs)
-curl -X POST http://localhost:8080/api/v1/projects/{PROJECT_ID}/required-technologies \
-  -H "Content-Type: application/json" \
-  -d '{"technologyId": "{TECH_ID}", "minLevel": "ADVANCED", "isMandatory": true}'
-```
+| Property | Type | Description |
+|----------|------|-------------|
+| `minYearsOfExperience` | integer | Minimum years needed for this skill |
+| `isMandatory` | boolean | Whether this skill is mandatory for the project |
 
 ---
 
@@ -1438,56 +748,98 @@ curl -X POST http://localhost:8080/api/v1/projects/{PROJECT_ID}/required-technol
 
 | Method | Endpoint | Description |
 |--------|----------|-------------|
-| **Skills** | | |
-| POST | `/skills` | Create skill |
-| GET | `/skills` | Get all skills |
-| GET | `/skills/{id}` | Get skill by ID |
-| GET | `/skills/search?query=` | Search skills |
-| PUT | `/skills/{id}` | Update skill |
-| DELETE | `/skills/{id}` | Delete skill |
-| **Technologies** | | |
-| POST | `/technologies` | Create technology |
-| GET | `/technologies` | Get all technologies |
-| GET | `/technologies/{id}` | Get technology by ID |
-| GET | `/technologies/search?query=` | Search technologies |
-| PUT | `/technologies/{id}` | Update technology |
-| DELETE | `/technologies/{id}` | Delete technology |
-| **Companies** | | |
-| POST | `/companies` | Create company |
-| GET | `/companies` | Get all companies |
-| GET | `/companies/{id}` | Get company by ID |
-| GET | `/companies/search?query=` | Search companies |
-| GET | `/companies/by-field?field=` | Get by industry |
-| PUT | `/companies/{id}` | Update company |
-| DELETE | `/companies/{id}` | Delete company |
-| **Consultants** | | |
-| POST | `/consultants` | Create consultant |
-| GET | `/consultants` | Get all consultants |
-| GET | `/consultants/{id}` | Get consultant by ID |
-| GET | `/consultants/by-email?email=` | Get by email |
-| GET | `/consultants/available` | Get available |
-| GET | `/consultants/wanting-new-project` | Get seeking projects |
-| GET | `/consultants/by-skills?skillNames=` | Get by skills |
-| GET | `/consultants/by-technologies?technologyNames=` | Get by technologies |
-| GET | `/consultants/available-with-experience?minYears=` | Get available with experience |
-| PUT | `/consultants/{id}` | Update consultant |
-| DELETE | `/consultants/{id}` | Delete consultant |
-| POST | `/consultants/{id}/skills` | Add skill |
-| POST | `/consultants/{id}/technologies` | Add technology |
-| **Projects** | | |
-| POST | `/projects` | Create project |
-| GET | `/projects` | Get all projects |
-| GET | `/projects/{id}` | Get project by ID |
-| GET | `/projects/by-name?name=` | Get by name |
-| GET | `/projects/by-company/{companyId}` | Get by company |
-| GET | `/projects/by-required-skills?skillNames=` | Get by required skills |
-| GET | `/projects/by-required-technologies?technologyNames=` | Get by required technologies |
-| PUT | `/projects/{id}` | Update project |
-| DELETE | `/projects/{id}` | Delete project |
-| POST | `/projects/{id}/company/{companyId}` | Assign company |
-| POST | `/projects/{id}/required-skills` | Add required skill |
-| POST | `/projects/{id}/required-technologies` | Add required technology |
+| | **Skills** | |
+| POST | `/api/v1/skills` | Create skill |
+| GET | `/api/v1/skills` | Get all skills |
+| GET | `/api/v1/skills/{id}` | Get skill by ID |
+| GET | `/api/v1/skills/search?query=` | Search skills by name |
+| PUT | `/api/v1/skills/{id}` | Update skill |
+| DELETE | `/api/v1/skills/{id}` | Delete skill |
+| | **Companies** | |
+| POST | `/api/v1/companies` | Create company |
+| GET | `/api/v1/companies` | Get all companies |
+| GET | `/api/v1/companies/{id}` | Get company by ID |
+| GET | `/api/v1/companies/search?query=` | Search companies by name |
+| GET | `/api/v1/companies/by-field?field=` | Get companies by industry |
+| PUT | `/api/v1/companies/{id}` | Update company |
+| DELETE | `/api/v1/companies/{id}` | Delete company |
+| | **Consultants** | |
+| POST | `/api/v1/consultants` | Create consultant |
+| GET | `/api/v1/consultants` | Get all consultants |
+| GET | `/api/v1/consultants/{id}` | Get consultant by ID |
+| GET | `/api/v1/consultants/by-email?email=` | Get consultant by email |
+| GET | `/api/v1/consultants/search` | Advanced multi-filter search |
+| GET | `/api/v1/consultants/available` | Get available consultants |
+| GET | `/api/v1/consultants/wanting-new-project` | Get consultants seeking projects |
+| GET | `/api/v1/consultants/by-skills?skillNames=` | Get consultants by skills |
+| GET | `/api/v1/consultants/available-with-experience?minYears=` | Get available with min experience |
+| PUT | `/api/v1/consultants/{id}` | Update consultant |
+| DELETE | `/api/v1/consultants/{id}` | Delete consultant |
+| POST | `/api/v1/consultants/{id}/skills` | Add skill to consultant |
+| | **Projects** | |
+| POST | `/api/v1/projects` | Create project |
+| GET | `/api/v1/projects` | Get all projects |
+| GET | `/api/v1/projects/{id}` | Get project by ID |
+| GET | `/api/v1/projects/by-name?name=` | Get project by name |
+| GET | `/api/v1/projects/by-company/{companyId}` | Get projects by company |
+| GET | `/api/v1/projects/by-required-skills?skillNames=` | Get projects by required skills |
+| PUT | `/api/v1/projects/{id}` | Update project |
+| DELETE | `/api/v1/projects/{id}` | Delete project |
+| POST | `/api/v1/projects/{id}/company/{companyId}` | Assign company to project |
+| POST | `/api/v1/projects/{id}/required-skills` | Add required skill to project |
 
 ---
 
-*Documentation generated for Data-Driven Staffing API v1.0*
+## Typical Workflow
+
+Here is a step-by-step example of setting up data and using the search:
+
+```bash
+# 1. Create a skill
+SKILL_ID=$(curl -s -X POST http://localhost:8080/api/v1/skills \
+  -H "Content-Type: application/json" \
+  -d '{"name": "Java", "synonyms": ["JDK"]}' | jq -r '.id')
+
+# 2. Create a company
+COMPANY_ID=$(curl -s -X POST http://localhost:8080/api/v1/companies \
+  -H "Content-Type: application/json" \
+  -d '{"name": "DNB", "field": "Finance"}' | jq -r '.id')
+
+# 3. Create a consultant
+CONSULTANT_ID=$(curl -s -X POST http://localhost:8080/api/v1/consultants \
+  -H "Content-Type: application/json" \
+  -d '{
+    "name": "Ola Nordmann",
+    "email": "ola@example.com",
+    "yearsOfExperience": 8,
+    "availability": true,
+    "wantsNewProject": true,
+    "openToRemote": true
+  }' | jq -r '.id')
+
+# 4. Add skill to consultant
+curl -X POST "http://localhost:8080/api/v1/consultants/${CONSULTANT_ID}/skills" \
+  -H "Content-Type: application/json" \
+  -d "{\"skillId\": \"${SKILL_ID}\", \"skillYearsOfExperience\": 8}"
+
+# 5. Create a project with the company
+PROJECT_ID=$(curl -s -X POST http://localhost:8080/api/v1/projects \
+  -H "Content-Type: application/json" \
+  -d "{
+    \"name\": \"Nettbank Modernisering\",
+    \"requirements\": [\"Modern frontend\", \"Security\"],
+    \"companyId\": \"${COMPANY_ID}\"
+  }" | jq -r '.id')
+
+# 6. Add required skill to project
+curl -X POST "http://localhost:8080/api/v1/projects/${PROJECT_ID}/required-skills" \
+  -H "Content-Type: application/json" \
+  -d "{\"skillId\": \"${SKILL_ID}\", \"minYearsOfExperience\": 5, \"isMandatory\": true}"
+
+# 7. Search for matching consultants
+curl "http://localhost:8080/api/v1/consultants/search?skillNames=Java&availability=true&openToRemote=true"
+```
+
+---
+
+*Documentation for Data-Driven Staffing API v2.0*
