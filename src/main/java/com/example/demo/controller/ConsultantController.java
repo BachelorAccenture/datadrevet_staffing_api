@@ -69,11 +69,23 @@ public class ConsultantController {
     public ResponseEntity<List<ConsultantResponse>> search(
             @RequestParam(required = false) final List<String> skillNames,
             @RequestParam(required = false) final String role,
-            @RequestParam(required = false) final Integer minYearsOfExperience) {
-        log.info("[ConsultantController] - SEARCH: skills: {}, role: {}, minYears: {}",
-                skillNames, role, minYearsOfExperience);
+            @RequestParam(required = false) final Integer minYearsOfExperience,
+            @RequestParam(required = false) final Boolean availability,
+            @RequestParam(required = false) final Boolean wantsNewProject,
+            @RequestParam(required = false) final Boolean openToRemote,
+            @RequestParam(required = false) final Boolean openToRelocation,
+            @RequestParam(required = false) final List<String> previousCompanies,
+            @RequestParam(required = false) final Long startDate,
+            @RequestParam(required = false) final Long endDate) {
+        log.info("[ConsultantController] - SEARCH: skills: {}, role: {}, minYears: {}, availability: {}, " +
+                        "wantsNewProject: {}, openToRemote: {}, openToRelocation: {}, previousCompanies: {}, " +
+                        "startDate: {}, endDate: {}",
+                skillNames, role, minYearsOfExperience, availability, wantsNewProject,
+                openToRemote, openToRelocation, previousCompanies, startDate, endDate);
+
         final List<Consultant> consultants = consultantService.searchConsultants(
-                skillNames, role, minYearsOfExperience);
+                skillNames, role, minYearsOfExperience, availability, wantsNewProject,
+                openToRemote, openToRelocation, previousCompanies, startDate, endDate);
         return ResponseEntity.ok(ConsultantMapper.toResponseList(consultants));
     }
 
@@ -97,7 +109,6 @@ public class ConsultantController {
         final List<Consultant> consultants = consultantService.findBySkillNames(skillNames);
         return ResponseEntity.ok(ConsultantMapper.toResponseList(consultants));
     }
-
 
     @GetMapping("/available-with-experience")
     public ResponseEntity<List<ConsultantResponse>> getAvailableWithMinExperience(
