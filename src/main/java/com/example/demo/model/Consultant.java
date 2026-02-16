@@ -11,9 +11,7 @@ import org.springframework.data.neo4j.core.schema.Property;
 import org.springframework.data.neo4j.core.schema.Relationship;
 import org.springframework.data.neo4j.core.support.UUIDStringGenerator;
 
-import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 @Node("Consultant")
@@ -40,14 +38,8 @@ public class Consultant {
     @Property("wantsNewProject")
     private Boolean wantsNewProject;
 
-    @Property("openToRelocation")
-    private Boolean openToRelocation;
-
     @Property("openToRemote")
     private Boolean openToRemote;
-
-    @Property("preferredRegions")
-    private List<String> preferredRegions = new ArrayList<>();
 
     @Relationship(type = "HAS_SKILL", direction = Relationship.Direction.OUTGOING)
     private Set<HasSkill> skills = new HashSet<>();

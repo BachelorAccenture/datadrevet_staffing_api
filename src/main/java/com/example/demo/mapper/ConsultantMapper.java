@@ -30,9 +30,7 @@ public final class ConsultantMapper {
                 .withYearsOfExperience(consultant.getYearsOfExperience())
                 .withAvailability(consultant.getAvailability())
                 .withWantsNewProject(consultant.getWantsNewProject())
-                .withOpenToRelocation(consultant.getOpenToRelocation())
                 .withOpenToRemote(consultant.getOpenToRemote())
-                .withPreferredRegions(consultant.getPreferredRegions())
                 .withSkills(mapSkills(consultant.getSkills()))
                 .withProjectAssignments(mapProjectAssignments(consultant.getProjectAssignments()))
                 .build();
@@ -57,9 +55,7 @@ public final class ConsultantMapper {
         consultant.setYearsOfExperience(request.yearsOfExperience());
         consultant.setAvailability(request.availability() != null ? request.availability() : false);
         consultant.setWantsNewProject(request.wantsNewProject() != null ? request.wantsNewProject() : false);
-        consultant.setOpenToRelocation(request.openToRelocation() != null ? request.openToRelocation() : false);
         consultant.setOpenToRemote(request.openToRemote() != null ? request.openToRemote() : false);
-        consultant.setPreferredRegions(request.preferredRegions() != null ? request.preferredRegions() : Collections.emptyList());
         return consultant;
     }
 

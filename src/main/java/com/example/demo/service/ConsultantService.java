@@ -67,15 +67,14 @@ public class ConsultantService {
                                               final Boolean availability,
                                               final Boolean wantsNewProject,
                                               final Boolean openToRemote,
-                                              final Boolean openToRelocation,
                                               final List<String> previousCompanies,
                                               final Long startDate,
                                               final Long endDate) {
         log.info("[ConsultantService] - SEARCH: skills: {}, role: {}, minYears: {}, availability: {}, " +
-                        "wantsNewProject: {}, openToRemote: {}, openToRelocation: {}, previousCompanies: {}, " +
+                        "wantsNewProject: {}, openToRemote: {}, previousCompanies: {}, " +
                         "startDate: {}, endDate: {}",
                 skillNames, role, minYearsOfExperience, availability, wantsNewProject,
-                openToRemote, openToRelocation, previousCompanies, startDate, endDate);
+                openToRemote, previousCompanies, startDate, endDate);
 
         final List<String> safeSkillNames = skillNames != null ? skillNames : Collections.emptyList();
         final List<String> safePreviousCompanies = previousCompanies != null ? previousCompanies : Collections.emptyList();
@@ -87,7 +86,6 @@ public class ConsultantService {
                 availability,
                 wantsNewProject,
                 openToRemote,
-                openToRelocation,
                 safePreviousCompanies,
                 startDate,
                 endDate
@@ -104,9 +102,7 @@ public class ConsultantService {
         existingConsultant.setYearsOfExperience(updatedConsultant.getYearsOfExperience());
         existingConsultant.setAvailability(updatedConsultant.getAvailability());
         existingConsultant.setWantsNewProject(updatedConsultant.getWantsNewProject());
-        existingConsultant.setOpenToRelocation(updatedConsultant.getOpenToRelocation());
         existingConsultant.setOpenToRemote(updatedConsultant.getOpenToRemote());
-        existingConsultant.setPreferredRegions(updatedConsultant.getPreferredRegions());
 
         return consultantRepository.save(existingConsultant);
     }

@@ -253,13 +253,7 @@ public class DataLoader {
         consultant.setAvailability(Boolean.parseBoolean(parts[4].trim()));
         consultant.setWantsNewProject(Boolean.parseBoolean(parts[5].trim()));
         consultant.setOpenToRemote(Boolean.parseBoolean(parts[6].trim()));
-        consultant.setOpenToRelocation(Boolean.parseBoolean(parts[7].trim()));
 
-        // Parse preferred regions
-        String regionsStr = parts[8].trim().replace("\"", "");
-        List<String> regions = regionsStr.isEmpty() ? new ArrayList<>() :
-                Arrays.asList(regionsStr.split(";"));
-        consultant.setPreferredRegions(regions);
         return consultant;
     }
 

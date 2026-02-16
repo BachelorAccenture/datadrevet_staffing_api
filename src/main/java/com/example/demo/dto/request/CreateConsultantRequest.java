@@ -4,7 +4,6 @@ import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 
-import java.util.List;
 
 public record CreateConsultantRequest(
         @NotBlank(message = "Name is required")
@@ -16,7 +15,5 @@ public record CreateConsultantRequest(
         Integer yearsOfExperience,
         Boolean availability,
         Boolean wantsNewProject,
-        Boolean openToRelocation,
-        Boolean openToRemote,
-        List<String> preferredRegions
+        Boolean openToRemote
 ) {}
