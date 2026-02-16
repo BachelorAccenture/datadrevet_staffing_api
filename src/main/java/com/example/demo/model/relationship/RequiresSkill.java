@@ -8,7 +8,6 @@ import org.springframework.data.neo4j.core.schema.Id;
 import org.springframework.data.neo4j.core.schema.Property;
 import org.springframework.data.neo4j.core.schema.RelationshipProperties;
 import org.springframework.data.neo4j.core.schema.TargetNode;
-import org.springframework.data.neo4j.core.support.UUIDStringGenerator;
 
 @RelationshipProperties
 @Getter
@@ -16,8 +15,8 @@ import org.springframework.data.neo4j.core.support.UUIDStringGenerator;
 public class RequiresSkill {
 
     @Id
-    @GeneratedValue(generatorClass = UUIDStringGenerator.class)
-    private String id;
+    @GeneratedValue
+    private Long id;
 
     @TargetNode
     private Skill skill;

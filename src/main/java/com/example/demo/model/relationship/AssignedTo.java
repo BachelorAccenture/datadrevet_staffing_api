@@ -8,7 +8,6 @@ import org.springframework.data.neo4j.core.schema.Id;
 import org.springframework.data.neo4j.core.schema.Property;
 import org.springframework.data.neo4j.core.schema.RelationshipProperties;
 import org.springframework.data.neo4j.core.schema.TargetNode;
-import org.springframework.data.neo4j.core.support.UUIDStringGenerator;
 
 import java.util.Date;
 
@@ -18,8 +17,8 @@ import java.util.Date;
 public class AssignedTo {
 
     @Id
-    @GeneratedValue(generatorClass = UUIDStringGenerator.class)
-    private String id;
+    @GeneratedValue
+    private Long id;
 
     @TargetNode
     private Project project;
