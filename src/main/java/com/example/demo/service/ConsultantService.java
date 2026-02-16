@@ -56,7 +56,6 @@ public class ConsultantService {
         return consultantRepository.findBySkillNames(skillNames);
     }
 
-
     public List<Consultant> findAvailableWithMinExperience(final Integer minYears) {
         log.debug("[ConsultantService] - FIND_AVAILABLE_WITH_MIN_EXPERIENCE: minYears: {}", minYears);
         return consultantRepository.findAvailableWithMinExperience(minYears);
@@ -64,16 +63,34 @@ public class ConsultantService {
 
     public List<Consultant> searchConsultants(final List<String> skillNames,
                                               final String role,
-                                              final Integer minYearsOfExperience) {
-        log.info("[ConsultantService] - SEARCH: skills: {}, technologies: {}, role: {}, minYears: {}",
-                skillNames, role, minYearsOfExperience);
+                                              final Integer minYearsOfExperience,
+                                              final Boolean availability,
+                                              final Boolean wantsNewProject,
+                                              final Boolean openToRemote,
+                                              final Boolean openToRelocation,
+                                              final List<String> previousCompanies,
+                                              final Long startDate,
+                                              final Long endDate) {
+        log.info("[ConsultantService] - SEARCH: skills: {}, role: {}, minYears: {}, availability: {}, " +
+                        "wantsNewProject: {}, openToRemote: {}, openToRelocation: {}, previousCompanies: {}, " +
+                        "startDate: {}, endDate: {}",
+                skillNames, role, minYearsOfExperience, availability, wantsNewProject,
+                openToRemote, openToRelocation, previousCompanies, startDate, endDate);
 
         final List<String> safeSkillNames = skillNames != null ? skillNames : Collections.emptyList();
+        final List<String> safePreviousCompanies = previousCompanies != null ? previousCompanies : Collections.emptyList();
 
         return consultantRepository.searchConsultants(
                 safeSkillNames,
                 role,
-                minYearsOfExperience
+                minYearsOfExperience,
+                availability,
+                wantsNewProject,
+                openToRemote,
+                openToRelocation,
+                safePreviousCompanies,
+                startDate,
+                endDate
         );
     }
 
@@ -98,7 +115,6 @@ public class ConsultantService {
         log.info("[ConsultantService] - DELETE: id: {}", id);
         consultantRepository.deleteById(id);
     }
-
 
     public Consultant addSkill(final String consultantId, final String skillId, final Integer skillYearsOfExperience) {
         log.info("[ConsultantService] - ADD_SKILL: consultantId: {}, skillId: {}, skillYearsOfExperience: {}",
