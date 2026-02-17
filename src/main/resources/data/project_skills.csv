@@ -1,0 +1,21 @@
+project,skill,minYearsOfExperience,isMandatory
+Staffing Optimization Platform,Java,3,true
+Staffing Optimization Platform,Spring Boot,2,true
+Staffing Optimization Platform,Neo4j,1,true
+Staffing Optimization Platform,React,1,false
+Digital Banking Portal,React,3,true
+Digital Banking Portal,TypeScript,2,true
+Digital Banking Portal,AWS,2,true
+Digital Banking Portal,Docker,1,false
+Energy Analytics Dashboard,Python,3,true
+Energy Analytics Dashboard,Machine Learning,2,true
+Energy Analytics Dashboard,AWS,1,false
+Energy Analytics Dashboard,SQL,2,true
+Cloud Infrastructure Migration,AWS,4,true
+Cloud Infrastructure Migration,Docker,3,true
+Cloud Infrastructure Migration,Kubernetes,2,true
+Cloud Infrastructure Migration,Java,2,false
+Content Recommendation Engine,Python,2,true
+Content Recommendation Engine,Machine Learning,3,true
+Content Recommendation Engine,React,1,false
+Content Recommendation Engine,Spring Boot,2,false

@@ -1,0 +1,50 @@
+consultant,skill,skillYearsOfExperience
+Emma Hansen,Java,7
+Emma Hansen,Spring Boot,5
+Emma Hansen,Neo4j,2
+Emma Hansen,Docker,3
+Emma Hansen,Agile,6
+Lars Olsen,React,4
+Lars Olsen,TypeScript,4
+Lars Olsen,Java,3
+Lars Olsen,Spring Boot,2
+Lars Olsen,Agile,3
+Sofia Andersen,Java,10
+Sofia Andersen,Spring Boot,8
+Sofia Andersen,AWS,5
+Sofia Andersen,Docker,4
+Sofia Andersen,Kubernetes,3
+Sofia Andersen,SQL,7
+Erik Johansen,Python,3
+Erik Johansen,Machine Learning,2
+Erik Johansen,SQL,2
+Erik Johansen,AWS,1
+Ingrid Berg,React,5
+Ingrid Berg,TypeScript,5
+Ingrid Berg,Python,2
+Ingrid Berg,Agile,4
+Ingrid Berg,Docker,2
+Magnus Nilsen,AWS,8
+Magnus Nilsen,Docker,7
+Magnus Nilsen,Kubernetes,6
+Magnus Nilsen,Java,4
+Magnus Nilsen,Python,3
+Hanna Eriksen,Python,4
+Hanna Eriksen,Machine Learning,3
+Hanna Eriksen,SQL,3
+Hanna Eriksen,React,1
+Oliver Larsen,Java,2
+Oliver Larsen,Spring Boot,1
+Oliver Larsen,SQL,2
+Oliver Larsen,Agile,1
+Nora Kristiansen,React,6
+Nora Kristiansen,TypeScript,5
+Nora Kristiansen,AWS,3
+Nora Kristiansen,Docker,2
+Nora Kristiansen,Agile,5
+Thomas Dahl,Python,7
+Thomas Dahl,Machine Learning,6
+Thomas Dahl,Java,4
+Thomas Dahl,Spring Boot,3
+Thomas Dahl,AWS,3
+Thomas Dahl,SQL,5

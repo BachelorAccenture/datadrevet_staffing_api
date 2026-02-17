@@ -1,25 +1,13 @@
 name,synonyms
-UI/UX Design,User Interface;User Experience
-DevOps,
-SQL,Structured Query Language
-Node.js,NodeJS;Node
-Angular,AngularJS;Angular.js
-C#,CSharp;C Sharp
-Agile,Scrum;Kanban
-Spring Framework,Spring;Spring Boot
-React,ReactJS;React.js
-JavaScript,JS;ECMAScript;ES6
-Python,Python3;Python 3
-Java,Java SE;Java EE;JDK
-Neo4j,Neo4j Graph Database
-PostgreSQL,Postgres;PSQL
-MongoDB,Mongo
-Docker,Docker Engine
-Kubernetes,K8s;K8
-AWS,Amazon Web Services;Amazon AWS
-Azure,Microsoft Azure
-Git,Git SCM
-Jenkins,Jenkins CI
-Redis,
-Apache Kafka,Kafka
-Elasticsearch,Elastic Search
+Java,"JDK;J2EE"
+Spring Boot,"Spring;Spring Framework"
+React,"ReactJS;React.js"
+TypeScript,"TS"
+Python,"Python3;Py"
+Neo4j,"Graph Database;Cypher"
+AWS,"Amazon Web Services;Cloud"
+Docker,"Containers;Containerization"
+Kubernetes,"K8s"
+SQL,"Relational Databases;PostgreSQL;MySQL"
+Agile,"Scrum;Kanban"
+Machine Learning,"ML;AI"
