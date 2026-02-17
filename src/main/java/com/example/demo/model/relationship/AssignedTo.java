@@ -9,6 +9,7 @@ import org.springframework.data.neo4j.core.schema.Property;
 import org.springframework.data.neo4j.core.schema.RelationshipProperties;
 import org.springframework.data.neo4j.core.schema.TargetNode;
 
+import java.time.LocalDateTime;
 import java.util.Date;
 
 @RelationshipProperties
@@ -33,7 +34,7 @@ public class AssignedTo {
     private String role;
 
     @Property("startDate")
-    private Date startDate;
+    private LocalDateTime startDate;
     @Property("endDate")
-    private Date endDate;
+    private LocalDateTime endDate;
 }

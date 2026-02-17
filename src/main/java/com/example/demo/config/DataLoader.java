@@ -152,8 +152,8 @@ public class DataLoader {
                 at.setRole(row[2]);
                 at.setAllocationPercent(Integer.parseInt(row[3]));
                 at.setIsActive(Boolean.parseBoolean(row[4]));
-                at.setStartDate(new Date());
-                at.setEndDate(new Date());
+                at.setStartDate(new LocalDateTime());
+                at.setEndDate(new LocalDateTime());
                 consultant.getProjectAssignments().add(at);
 
                 neo4jTemplate.save(consultant);

@@ -15,7 +15,8 @@ public class ProjectResponse {
     private final String id;
     private final String name;
     private final List<String> requirements;
-    private final LocalDateTime date;
+    private final LocalDateTime startDate;
+    private final LocalDateTime endDate;
     private final CompanyResponse company;
     private final Set<RequiresSkillResponse> requiredSkills;
     private final Map<String, Integer> roles;

@@ -12,8 +12,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.Collections;
-import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
@@ -73,8 +73,8 @@ public class ConsultantService {
                                               final Boolean wantsNewProject,
                                               final Boolean openToRemote,
                                               final List<String> previousCompanies,
-                                              final Long startDate,
-                                              final Long endDate) {
+                                              final LocalDateTime startDate,
+                                              final LocalDateTime endDate) {
         log.info("[ConsultantService] - SEARCH: skills: {}, role: {}, minYears: {}, availability: {}, " +
                         "wantsNewProject: {}, openToRemote: {}, previousCompanies: {}, " +
                         "startDate: {}, endDate: {}",
@@ -137,7 +137,7 @@ public class ConsultantService {
 
     public Consultant assignToProject(final String consultantId, final String projectId,
                                       final String role, final Integer allocationPercent,
-                                      final Boolean isActive, final Long startDate, final Long endDate) {
+                                      final Boolean isActive, final LocalDateTime startDate, final LocalDateTime endDate) {
         log.info("[ConsultantService] - ASSIGN_TO_PROJECT: consultantId: {}, projectId: {}", consultantId, projectId);
 
         final Consultant consultant = consultantRepository.findById(consultantId)
@@ -151,8 +151,8 @@ public class ConsultantService {
         assignedTo.setRole(role);
         assignedTo.setAllocationPercent(allocationPercent != null ? allocationPercent : 100);
         assignedTo.setIsActive(isActive != null ? isActive : true);
-        if (startDate != null) assignedTo.setStartDate(new Date(startDate));
-        if (endDate != null) assignedTo.setEndDate(new Date(endDate));
+        if (startDate != null) assignedTo.setStartDate(new LocalDateTime(startDate));
+        if (endDate != null) assignedTo.setEndDate(new LocalDateTime(endDate));
 
         consultant.getProjectAssignments().add(assignedTo);
         return consultantRepository.save(consultant);

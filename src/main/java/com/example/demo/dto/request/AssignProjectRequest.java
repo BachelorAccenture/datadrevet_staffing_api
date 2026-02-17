@@ -5,6 +5,8 @@ import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 
+import java.time.LocalDateTime;
+
 public record AssignProjectRequest(
         @NotBlank(message = "Project ID is required")
         String projectId,
@@ -13,6 +15,6 @@ public record AssignProjectRequest(
         @Max(value = 100, message = "Allocation percent must be between 0 and 100")
         Integer allocationPercent,
         Boolean isActive,
-        Long startDate,
-        Long endDate
+        LocalDateTime startDate,
+        LocalDateTime endDate
 ) {}

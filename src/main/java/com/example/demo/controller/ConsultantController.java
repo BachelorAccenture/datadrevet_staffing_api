@@ -23,6 +23,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @RestController
@@ -76,8 +77,8 @@ public class ConsultantController {
             @RequestParam(required = false) final Boolean openToRemote,
             @RequestParam(required = false) final Boolean openToRelocation,
             @RequestParam(required = false) final List<String> previousCompanies,
-            @RequestParam(required = false) final Long startDate,
-            @RequestParam(required = false) final Long endDate) {
+            @RequestParam(required = false) final LocalDateTime startDate,
+            @RequestParam(required = false) final LocalDateTime endDate) {
         log.info("[ConsultantController] - SEARCH: skills: {}, role: {}, minYears: {}, availability: {}, " +
                         "wantsNewProject: {}, openToRemote: {}, openToRelocation: {}, previousCompanies: {}, " +
                         "startDate: {}, endDate: {}",
