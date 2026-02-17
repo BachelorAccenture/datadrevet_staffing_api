@@ -151,8 +151,8 @@ public class ConsultantService {
         assignedTo.setRole(role);
         assignedTo.setAllocationPercent(allocationPercent != null ? allocationPercent : 100);
         assignedTo.setIsActive(isActive != null ? isActive : true);
-        if (startDate != null) assignedTo.setStartDate(new LocalDateTime(startDate));
-        if (endDate != null) assignedTo.setEndDate(new LocalDateTime(endDate));
+        if (startDate != null) assignedTo.setStartDate(startDate);
+        if (endDate != null) assignedTo.setEndDate(endDate);
 
         consultant.getProjectAssignments().add(assignedTo);
         return consultantRepository.save(consultant);

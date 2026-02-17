@@ -5,6 +5,7 @@ import org.springframework.data.neo4j.repository.Neo4jRepository;
 import org.springframework.data.neo4j.repository.query.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -70,8 +71,8 @@ public interface ConsultantRepository extends Neo4jRepository<Consultant, String
             @Param("wantsNewProject") Boolean wantsNewProject,
             @Param("openToRemote") Boolean openToRemote,
             @Param("previousCompanies") List<String> previousCompanies,
-            @Param("startDate") Long startDate,
-            @Param("endDate") Long endDate
+            @Param("startDate") LocalDateTime startDate,
+            @Param("endDate") LocalDateTime endDate
     );
 
     boolean existsByEmail(String email);

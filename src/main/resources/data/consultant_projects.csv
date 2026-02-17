@@ -1,11 +1,11 @@
-consultant,project,role,allocationPercent,isActive
-Emma Hansen,Staffing Optimization Platform,Backend Developer,80,true
-Lars Olsen,Staffing Optimization Platform,Frontend Developer,100,true
-Sofia Andersen,Cloud Infrastructure Migration,Cloud Architect,100,true
-Erik Johansen,Energy Analytics Dashboard,Data Engineer,60,true
-Ingrid Berg,Digital Banking Portal,Fullstack Developer,100,true
-Magnus Nilsen,Cloud Infrastructure Migration,DevOps Engineer,80,true
-Hanna Eriksen,Content Recommendation Engine,ML Engineer,100,true
-Nora Kristiansen,Digital Banking Portal,Tech Lead,100,true
-Thomas Dahl,Energy Analytics Dashboard,ML Engineer,50,true
-Thomas Dahl,Content Recommendation Engine,Backend Developer,50,true
+consultant,project,role,allocationPercent,isActive,startDate,endDate
+Emma Hansen,Staffing Optimization Platform,Backend Developer,80,true,2020-01-01T00:00:00,2020-06-30T00:00:00
+Lars Olsen,Staffing Optimization Platform,Frontend Developer,100,true,2020-01-01T00:00:00,2020-06-30T00:00:00
+Sofia Andersen,Cloud Infrastructure Migration,Cloud Architect,100,true,2020-01-01T00:00:00,2020-06-30T00:00:00
+Erik Johansen,Energy Analytics Dashboard,Data Engineer,60,true,2020-01-01T00:00:00,2020-06-30T00:00:00
+Ingrid Berg,Digital Banking Portal,Fullstack Developer,100,true,2020-01-01T00:00:00,2020-06-30T00:00:00
+Magnus Nilsen,Cloud Infrastructure Migration,DevOps Engineer,80,true,2020-01-01T00:00:00,2020-06-30T00:00:00
+Hanna Eriksen,Content Recommendation Engine,ML Engineer,100,true,2020-01-01T00:00:00,2020-06-30T00:00:00
+Nora Kristiansen,Digital Banking Portal,Tech Lead,100,true,2020-01-01T00:00:00,2020-06-30T00:00:00
+Thomas Dahl,Energy Analytics Dashboard,ML Engineer,50,true,2020-01-01T00:00:00,2020-06-30T00:00:00
+Thomas Dahl,Content Recommendation Engine,Backend Developer,50,true,2020-01-01T00:00:00,2020-06-30T00:00:00

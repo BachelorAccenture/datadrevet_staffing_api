@@ -75,7 +75,7 @@ public class DataLoader {
                 project.setCompany(company);
 
                 project.setStartDate(LocalDateTime.parse(row[2]));
-                project.setStartDate(LocalDateTime.parse(row[3]));
+                project.setEndDate(LocalDateTime.parse(row[3]));
                 project.setRequirements(parseSemicolonList(row[4]));
                 project.setRoles(parseRolesMap(row[5]));
 
@@ -152,8 +152,12 @@ public class DataLoader {
                 at.setRole(row[2]);
                 at.setAllocationPercent(Integer.parseInt(row[3]));
                 at.setIsActive(Boolean.parseBoolean(row[4]));
-                at.setStartDate(new LocalDateTime());
-                at.setEndDate(new LocalDateTime());
+                if (row.length > 5 && !row[5].isBlank()) {
+                    at.setStartDate(LocalDateTime.parse(row[5]));
+                }
+                if (row.length > 6 && !row[6].isBlank()) {
+                    at.setEndDate(LocalDateTime.parse(row[6]));
+                }
                 consultant.getProjectAssignments().add(at);
 
                 neo4jTemplate.save(consultant);
