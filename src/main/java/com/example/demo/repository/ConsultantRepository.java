@@ -36,7 +36,6 @@ public interface ConsultantRepository extends Neo4jRepository<Consultant, String
           AND ($availability IS NULL OR c.availability = $availability)
           AND ($wantsNewProject IS NULL OR c.wantsNewProject = $wantsNewProject)
           AND ($openToRemote IS NULL OR c.openToRemote = $openToRemote)
-          AND ($openToRelocation IS NULL OR c.openToRelocation = $openToRelocation)
           AND ($role IS NULL OR $role = '' OR EXISTS {
               MATCH (c)-[at:ASSIGNED_TO]->(p:Project)
               WHERE toLower(at.role) CONTAINS toLower($role)
@@ -52,10 +51,10 @@ public interface ConsultantRepository extends Neo4jRepository<Consultant, String
               MATCH (c)-[at:ASSIGNED_TO]->(p:Project)
               WHERE at.isActive = true
                 AND (
-                  (at.startDate IS NOT NULL AND at.endDate IS NOT NULL 
+                  (at.startDate IS NOT NULL AND at.endDate IS NOT NULL
                    AND at.startDate <= $endDate AND at.endDate >= $startDate)
                   OR
-                  (at.startDate IS NOT NULL AND at.endDate IS NULL 
+                  (at.startDate IS NOT NULL AND at.endDate IS NULL
                    AND at.startDate <= $endDate)
                 )
           })
@@ -70,7 +69,6 @@ public interface ConsultantRepository extends Neo4jRepository<Consultant, String
             @Param("availability") Boolean availability,
             @Param("wantsNewProject") Boolean wantsNewProject,
             @Param("openToRemote") Boolean openToRemote,
-            @Param("openToRelocation") Boolean openToRelocation,
             @Param("previousCompanies") List<String> previousCompanies,
             @Param("startDate") Long startDate,
             @Param("endDate") Long endDate

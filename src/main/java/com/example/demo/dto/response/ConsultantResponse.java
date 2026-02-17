@@ -3,7 +3,6 @@ package com.example.demo.dto.response;
 import lombok.Builder;
 import lombok.Getter;
 
-import java.util.List;
 import java.util.Set;
 
 @Getter
@@ -16,9 +15,7 @@ public class ConsultantResponse {
     private final Integer yearsOfExperience;
     private final Boolean availability;
     private final Boolean wantsNewProject;
-    private final Boolean openToRelocation;
     private final Boolean openToRemote;
-    private final List<String> preferredRegions;
     private final Set<HasSkillResponse> skills;
     private final Set<AssignedToResponse> projectAssignments;
 }
