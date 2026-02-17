@@ -60,7 +60,8 @@ public class ProjectService {
 
         existingProject.setName(updatedProject.getName());
         existingProject.setRequirements(updatedProject.getRequirements());
-        existingProject.setDate(updatedProject.getDate());
+        existingProject.setStartDate(updatedProject.getStartDate());
+        existingProject.setEndDate(updatedProject.getEndDate());
 
         return projectRepository.save(existingProject);
     }

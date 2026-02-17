@@ -1,6 +1,6 @@
-name,company,date,requirements,roles
-Staffing Optimization Platform,Accenture,2026-05-13T00:00:00,"Graph-based matching;REST API;OAuth2 authentication","Backend Developer:2;Frontend Developer:1;Project Lead:1"
-Digital Banking Portal,DNB,2026-09-01T00:00:00,"Customer-facing portal;Real-time transactions;High availability","Fullstack Developer:3;DevOps Engineer:1;Tech Lead:1"
-Energy Analytics Dashboard,Equinor,2026-06-15T00:00:00,"Real-time data visualization;ML predictions;Sensor integration","Data Engineer:2;ML Engineer:1;Backend Developer:1"
-Cloud Infrastructure Migration,Telenor,2026-12-01T00:00:00,"Migrate legacy systems;Zero downtime;Containerization","DevOps Engineer:2;Cloud Architect:1;Backend Developer:2"
-Content Recommendation Engine,Schibsted,2026-08-01T00:00:00,"Personalized content;A/B testing;Scalable API","ML Engineer:2;Backend Developer:2;Frontend Developer:1"
+name,company,startdate,enddate,requirements,roles
+Staffing Optimization Platform,Accenture,2026-05-13T00:00:00,2027-05-13T00:00:00,"Graph-based matching;REST API;OAuth2 authentication","Backend Developer:2;Frontend Developer:1;Project Lead:1"
+Digital Banking Portal,DNB,2025-09-01T00:00:00,2025-09-01T00:00:00,"Customer-facing portal;Real-time transactions;High availability","Fullstack Developer:3;DevOps Engineer:1;Tech Lead:1"
+Energy Analytics Dashboard,Equinor,2022-06-15T00:00:00,2025-06-15T00:00:00,"Real-time data visualization;ML predictions;Sensor integration","Data Engineer:2;ML Engineer:1;Backend Developer:1"
+Cloud Infrastructure Migration,Telenor,2026-12-01T00:00:00,2028-12-01T00:00:00,"Migrate legacy systems;Zero downtime;Containerization","DevOps Engineer:2;Cloud Architect:1;Backend Developer:2"
+Content Recommendation Engine,Schibsted,2026-08-01T00:00:00,2027-08-01T00:00:00,"Personalized content;A/B testing;Scalable API","ML Engineer:2;Backend Developer:2;Frontend Developer:1"

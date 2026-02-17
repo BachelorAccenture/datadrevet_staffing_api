@@ -9,6 +9,8 @@ public record CreateProjectRequest(
         @NotBlank(message = "Name is required")
         String name,
         List<String> requirements,
-        LocalDateTime date,
+        LocalDateTime startDate,
+        LocalDateTime endDate,
+
         String companyId
 ) {}

@@ -1,6 +1,7 @@
 package com.example.demo.controller;
 
 import com.example.demo.dto.request.AddSkillRequest;
+import com.example.demo.dto.request.AssignProjectRequest;
 import com.example.demo.dto.request.CreateConsultantRequest;
 import com.example.demo.dto.response.ConsultantResponse;
 import com.example.demo.exception.ResourceNotFoundException;
@@ -142,6 +143,16 @@ public class ConsultantController {
         log.info("[ConsultantController] - ADD_SKILL: consultantId: {}, skillId: {}, skillYearsOfExperience: {}",
                 id, request.skillId(), request.skillYearsOfExperience());
         final Consultant consultant = consultantService.addSkill(id, request.skillId(), request.skillYearsOfExperience());
+        return ResponseEntity.ok(ConsultantMapper.toResponse(consultant));
+    }
+    @PostMapping("/{id}/projects")
+    public ResponseEntity<ConsultantResponse> assignToProject(
+            @PathVariable final String id,
+            @Valid @RequestBody final AssignProjectRequest request) {
+        log.info("[ConsultantController] - ASSIGN_TO_PROJECT: consultantId: {}, projectId: {}", id, request.projectId());
+        final Consultant consultant = consultantService.assignToProject(
+                id, request.projectId(), request.role(), request.allocationPercent(),
+                request.isActive(), request.startDate(), request.endDate());
         return ResponseEntity.ok(ConsultantMapper.toResponse(consultant));
     }
 }

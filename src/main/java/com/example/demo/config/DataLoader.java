@@ -74,9 +74,10 @@ public class DataLoader {
                 }
                 project.setCompany(company);
 
-                project.setDate(LocalDateTime.parse(row[2]));
-                project.setRequirements(parseSemicolonList(row[3]));
-                project.setRoles(parseRolesMap(row[4]));
+                project.setStartDate(LocalDateTime.parse(row[2]));
+                project.setStartDate(LocalDateTime.parse(row[3]));
+                project.setRequirements(parseSemicolonList(row[4]));
+                project.setRoles(parseRolesMap(row[5]));
 
                 project = neo4jTemplate.save(project);
                 projectMap.put(project.getName(), project);
@@ -152,6 +153,7 @@ public class DataLoader {
                 at.setAllocationPercent(Integer.parseInt(row[3]));
                 at.setIsActive(Boolean.parseBoolean(row[4]));
                 at.setStartDate(new Date());
+                at.setEndDate(new Date());
                 consultant.getProjectAssignments().add(at);
 
                 neo4jTemplate.save(consultant);

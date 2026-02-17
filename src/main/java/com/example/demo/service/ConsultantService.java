@@ -1,15 +1,19 @@
 package com.example.demo.service;
 
 import com.example.demo.model.Consultant;
+import com.example.demo.model.Project;
 import com.example.demo.model.Skill;
+import com.example.demo.model.relationship.AssignedTo;
 import com.example.demo.model.relationship.HasSkill;
 import com.example.demo.repository.ConsultantRepository;
+import com.example.demo.repository.ProjectRepository;
 import com.example.demo.repository.SkillRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
@@ -20,6 +24,7 @@ public class ConsultantService {
 
     private final ConsultantRepository consultantRepository;
     private final SkillRepository skillRepository;
+    private final ProjectRepository projectRepository;
 
     public Consultant create(final Consultant consultant) {
         log.info("[ConsultantService] - CREATE: email: {}", consultant.getEmail());
@@ -127,6 +132,29 @@ public class ConsultantService {
         hasSkill.setSkillYearsOfExperience(skillYearsOfExperience);
 
         consultant.getSkills().add(hasSkill);
+        return consultantRepository.save(consultant);
+    }
+
+    public Consultant assignToProject(final String consultantId, final String projectId,
+                                      final String role, final Integer allocationPercent,
+                                      final Boolean isActive, final Long startDate, final Long endDate) {
+        log.info("[ConsultantService] - ASSIGN_TO_PROJECT: consultantId: {}, projectId: {}", consultantId, projectId);
+
+        final Consultant consultant = consultantRepository.findById(consultantId)
+                .orElseThrow(() -> new IllegalArgumentException("Consultant not found with id: " + consultantId));
+
+        final Project project = projectRepository.findById(projectId)
+                .orElseThrow(() -> new IllegalArgumentException("Project not found with id: " + projectId));
+
+        final AssignedTo assignedTo = new AssignedTo();
+        assignedTo.setProject(project);
+        assignedTo.setRole(role);
+        assignedTo.setAllocationPercent(allocationPercent != null ? allocationPercent : 100);
+        assignedTo.setIsActive(isActive != null ? isActive : true);
+        if (startDate != null) assignedTo.setStartDate(new Date(startDate));
+        if (endDate != null) assignedTo.setEndDate(new Date(endDate));
+
+        consultant.getProjectAssignments().add(assignedTo);
         return consultantRepository.save(consultant);
     }
 

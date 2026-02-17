@@ -25,7 +25,8 @@ public final class ProjectMapper {
                 .withId(project.getId())
                 .withName(project.getName())
                 .withRequirements(project.getRequirements())
-                .withDate(project.getDate())
+                .withDate(project.getStartDate())
+                .withDate(project.getEndDate())
                 .withCompany(CompanyMapper.toResponse(project.getCompany()))
                 .withRequiredSkills(mapRequiredSkills(project.getRequiredSkills()))
                 .withRoles(project.getRoles())
@@ -48,7 +49,8 @@ public final class ProjectMapper {
         final Project project = new Project();
         project.setName(request.name());
         project.setRequirements(request.requirements() != null ? request.requirements() : Collections.emptyList());
-        project.setDate(request.date());
+        project.setStartDate(request.startDate());
+        project.setEndDate(request.endDate());
         return project;
     }
 

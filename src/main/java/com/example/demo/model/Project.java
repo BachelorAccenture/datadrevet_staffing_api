@@ -33,8 +33,11 @@ public class Project {
     @Property("requirements")
     private List<String> requirements = new ArrayList<>();
 
-    @Property("date")
-    private LocalDateTime date;
+    @Property("startDate")
+    private LocalDateTime startDate;
+
+    @Property("endDate")
+    private LocalDateTime endDate;
 
     // Store roles as parallel lists since Neo4j doesn't support Map properties
     @Property("roleNames")
