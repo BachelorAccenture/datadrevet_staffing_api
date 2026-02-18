@@ -15,6 +15,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -146,6 +147,7 @@ public class ConsultantController {
         final Consultant consultant = consultantService.addSkill(id, request.skillId(), request.skillYearsOfExperience());
         return ResponseEntity.ok(ConsultantMapper.toResponse(consultant));
     }
+
     @PostMapping("/{id}/projects")
     public ResponseEntity<ConsultantResponse> assignToProject(
             @PathVariable final String id,
@@ -154,6 +156,24 @@ public class ConsultantController {
         final Consultant consultant = consultantService.assignToProject(
                 id, request.projectId(), request.role(), request.allocationPercent(),
                 request.isActive(), request.startDate(), request.endDate());
+        return ResponseEntity.ok(ConsultantMapper.toResponse(consultant));
+    }
+
+    @PatchMapping("/{id}/projects/{projectId}/deactivate")
+    public ResponseEntity<ConsultantResponse> deactivateProjectAssignment(
+            @PathVariable final String id,
+            @PathVariable final String projectId) {
+        log.info("[ConsultantController] - DEACTIVATE_PROJECT: consultantId: {}, projectId: {}", id, projectId);
+        final Consultant consultant = consultantService.deactivateProjectAssignment(id, projectId);
+        return ResponseEntity.ok(ConsultantMapper.toResponse(consultant));
+    }
+
+    @DeleteMapping("/{id}/projects/{projectId}")
+    public ResponseEntity<ConsultantResponse> removeProjectAssignment(
+            @PathVariable final String id,
+            @PathVariable final String projectId) {
+        log.info("[ConsultantController] - REMOVE_PROJECT: consultantId: {}, projectId: {}", id, projectId);
+        final Consultant consultant = consultantService.removeProjectAssignment(id, projectId);
         return ResponseEntity.ok(ConsultantMapper.toResponse(consultant));
     }
 }

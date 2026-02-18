@@ -19,7 +19,7 @@ public class CorsConfig {
         configuration.setAllowedOrigins(List.of("http://localhost:5174", "http://localhost:5173"));
 
         // Allow all common HTTP methods
-        configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+        configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
 
         // Allow all headers
         configuration.setAllowedHeaders(List.of("*"));

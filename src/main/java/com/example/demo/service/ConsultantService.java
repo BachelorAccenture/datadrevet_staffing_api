@@ -28,6 +28,7 @@ public class ConsultantService {
 
     public Consultant create(final Consultant consultant) {
         log.info("[ConsultantService] - CREATE: email: {}", consultant.getEmail());
+        recalculateAvailability(consultant);
         return consultantRepository.save(consultant);
     }
 
@@ -105,9 +106,11 @@ public class ConsultantService {
         existingConsultant.setName(updatedConsultant.getName());
         existingConsultant.setEmail(updatedConsultant.getEmail());
         existingConsultant.setYearsOfExperience(updatedConsultant.getYearsOfExperience());
-        existingConsultant.setAvailability(updatedConsultant.getAvailability());
         existingConsultant.setWantsNewProject(updatedConsultant.getWantsNewProject());
         existingConsultant.setOpenToRemote(updatedConsultant.getOpenToRemote());
+
+        // Availability is derived from active assignments — ignore whatever the client sent
+        recalculateAvailability(existingConsultant);
 
         return consultantRepository.save(existingConsultant);
     }
@@ -155,10 +158,73 @@ public class ConsultantService {
         if (endDate != null) assignedTo.setEndDate(endDate);
 
         consultant.getProjectAssignments().add(assignedTo);
+        recalculateAvailability(consultant);
+
+        return consultantRepository.save(consultant);
+    }
+
+    /**
+     * Marks a consultant's assignment to a project as inactive (ended).
+     * Preserves the assignment for historical records but frees up the consultant.
+     */
+    public Consultant deactivateProjectAssignment(final String consultantId, final String projectId) {
+        log.info("[ConsultantService] - DEACTIVATE_PROJECT: consultantId: {}, projectId: {}", consultantId, projectId);
+
+        final Consultant consultant = consultantRepository.findById(consultantId)
+                .orElseThrow(() -> new IllegalArgumentException("Consultant not found with id: " + consultantId));
+
+        final AssignedTo assignment = consultant.getProjectAssignments().stream()
+                .filter(a -> a.getProject() != null && projectId.equals(a.getProject().getId()))
+                .findFirst()
+                .orElseThrow(() -> new IllegalArgumentException(
+                        "Consultant %s has no assignment to project %s".formatted(consultantId, projectId)));
+
+        assignment.setIsActive(false);
+        if (assignment.getEndDate() == null) {
+            assignment.setEndDate(LocalDateTime.now());
+        }
+
+        recalculateAvailability(consultant);
+        return consultantRepository.save(consultant);
+    }
+
+    /**
+     * Completely removes a consultant's assignment to a project.
+     * Use deactivateProjectAssignment instead if you want to preserve history.
+     */
+    public Consultant removeProjectAssignment(final String consultantId, final String projectId) {
+        log.info("[ConsultantService] - REMOVE_PROJECT: consultantId: {}, projectId: {}", consultantId, projectId);
+
+        final Consultant consultant = consultantRepository.findById(consultantId)
+                .orElseThrow(() -> new IllegalArgumentException("Consultant not found with id: " + consultantId));
+
+        final boolean removed = consultant.getProjectAssignments()
+                .removeIf(a -> a.getProject() != null && projectId.equals(a.getProject().getId()));
+
+        if (!removed) {
+            throw new IllegalArgumentException(
+                    "Consultant %s has no assignment to project %s".formatted(consultantId, projectId));
+        }
+
+        recalculateAvailability(consultant);
         return consultantRepository.save(consultant);
     }
 
     public boolean existsByEmail(final String email) {
         return consultantRepository.existsByEmail(email);
+    }
+
+    // ── Private helpers ─────────────────────────────────────
+
+    /**
+     * Sets availability based on whether the consultant has any active project assignments.
+     * A consultant with at least one active assignment is considered unavailable.
+     */
+    private void recalculateAvailability(final Consultant consultant) {
+        final boolean hasActiveAssignment = consultant.getProjectAssignments().stream()
+                .anyMatch(a -> Boolean.TRUE.equals(a.getIsActive()));
+        consultant.setAvailability(!hasActiveAssignment);
+        log.debug("[ConsultantService] - RECALCULATE_AVAILABILITY: consultant: {}, hasActive: {}, availability: {}",
+                consultant.getName(), hasActiveAssignment, consultant.getAvailability());
     }
 }
