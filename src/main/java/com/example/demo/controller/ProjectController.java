@@ -2,6 +2,7 @@ package com.example.demo.controller;
 
 import com.example.demo.dto.request.AddRequiredSkillRequest;
 import com.example.demo.dto.request.CreateProjectRequest;
+import com.example.demo.dto.request.UpdateProjectRequest;
 import com.example.demo.dto.response.ProjectResponse;
 import com.example.demo.exception.ResourceNotFoundException;
 import com.example.demo.mapper.ProjectMapper;
@@ -89,7 +90,7 @@ public class ProjectController {
     @PutMapping("/{id}")
     public ResponseEntity<ProjectResponse> update(
             @PathVariable final String id,
-            @Valid @RequestBody final CreateProjectRequest request) {
+            @Valid @RequestBody final UpdateProjectRequest request) {
         log.info("[ProjectController] - UPDATE: id: {}", id);
         final Project updatedProject = ProjectMapper.toEntity(request);
         final Project savedProject = projectService.update(id, updatedProject);

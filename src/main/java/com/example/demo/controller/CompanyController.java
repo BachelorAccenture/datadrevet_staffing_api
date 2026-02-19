@@ -1,6 +1,7 @@
 package com.example.demo.controller;
 
 import com.example.demo.dto.request.CreateCompanyRequest;
+import com.example.demo.dto.request.UpdateCompanyRequest;
 import com.example.demo.dto.response.CompanyResponse;
 import com.example.demo.exception.ResourceNotFoundException;
 import com.example.demo.mapper.CompanyMapper;
@@ -72,7 +73,7 @@ public class CompanyController {
     @PutMapping("/{id}")
     public ResponseEntity<CompanyResponse> update(
             @PathVariable final String id,
-            @Valid @RequestBody final CreateCompanyRequest request) {
+            @Valid @RequestBody final UpdateCompanyRequest request) {
         log.info("[CompanyController] - UPDATE: id: {}", id);
         final Company updatedCompany = CompanyMapper.toEntity(request);
         final Company savedCompany = companyService.update(id, updatedCompany);

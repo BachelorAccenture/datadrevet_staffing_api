@@ -1,6 +1,7 @@
 package com.example.demo.mapper;
 
 import com.example.demo.dto.request.CreateConsultantRequest;
+import com.example.demo.dto.request.UpdateConsultantRequest;
 import com.example.demo.dto.response.AssignedToResponse;
 import com.example.demo.dto.response.ConsultantResponse;
 import com.example.demo.dto.response.HasSkillResponse;
@@ -54,6 +55,18 @@ public final class ConsultantMapper {
         consultant.setEmail(request.email());
         consultant.setYearsOfExperience(request.yearsOfExperience());
         consultant.setAvailability(request.availability() != null ? request.availability() : false);
+        consultant.setWantsNewProject(request.wantsNewProject() != null ? request.wantsNewProject() : false);
+        consultant.setOpenToRemote(request.openToRemote() != null ? request.openToRemote() : false);
+        return consultant;
+    }
+    public static Consultant toEntity(final UpdateConsultantRequest request) {
+        if (request == null) {
+            return null;
+        }
+        final Consultant consultant = new Consultant();
+        consultant.setName(request.name());
+        consultant.setEmail(request.email());
+        consultant.setYearsOfExperience(request.yearsOfExperience());
         consultant.setWantsNewProject(request.wantsNewProject() != null ? request.wantsNewProject() : false);
         consultant.setOpenToRemote(request.openToRemote() != null ? request.openToRemote() : false);
         return consultant;

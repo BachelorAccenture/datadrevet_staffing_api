@@ -1,0 +1,14 @@
+package com.example.demo.dto.request;
+
+import jakarta.validation.constraints.NotBlank;
+
+import java.time.LocalDateTime;
+import java.util.List;
+
+public record UpdateProjectRequest(
+        @NotBlank(message = "Name is required")
+        String name,
+        List<String> requirements,
+        LocalDateTime startDate,
+        LocalDateTime endDate
+) {}

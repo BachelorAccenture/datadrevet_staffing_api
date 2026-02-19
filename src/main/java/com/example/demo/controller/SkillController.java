@@ -1,6 +1,7 @@
 package com.example.demo.controller;
 
 import com.example.demo.dto.request.CreateSkillRequest;
+import com.example.demo.dto.request.UpdateSkillRequest;
 import com.example.demo.dto.response.SkillResponse;
 import com.example.demo.exception.ResourceNotFoundException;
 import com.example.demo.mapper.SkillMapper;
@@ -65,7 +66,7 @@ public class SkillController {
     @PutMapping("/{id}")
     public ResponseEntity<SkillResponse> update(
             @PathVariable final String id,
-            @Valid @RequestBody final CreateSkillRequest request) {
+            @Valid @RequestBody final UpdateSkillRequest request) {
         log.info("[SkillController] - UPDATE: id: {}", id);
         final Skill updatedSkill = SkillMapper.toEntity(request);
         final Skill savedSkill = skillService.update(id, updatedSkill);

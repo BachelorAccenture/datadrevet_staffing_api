@@ -1,6 +1,7 @@
 package com.example.demo.mapper;
 
 import com.example.demo.dto.request.CreateSkillRequest;
+import com.example.demo.dto.request.UpdateSkillRequest;
 import com.example.demo.dto.response.SkillResponse;
 import com.example.demo.model.Skill;
 
@@ -34,6 +35,15 @@ public final class SkillMapper {
     }
 
     public static Skill toEntity(final CreateSkillRequest request) {
+        if (request == null) {
+            return null;
+        }
+        final Skill skill = new Skill();
+        skill.setName(request.name());
+        skill.setSynonyms(request.synonyms() != null ? request.synonyms() : Collections.emptyList());
+        return skill;
+    }
+    public static Skill toEntity(final UpdateSkillRequest request) {
         if (request == null) {
             return null;
         }

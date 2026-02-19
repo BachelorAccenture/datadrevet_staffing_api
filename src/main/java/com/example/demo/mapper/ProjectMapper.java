@@ -1,6 +1,7 @@
 package com.example.demo.mapper;
 
 import com.example.demo.dto.request.CreateProjectRequest;
+import com.example.demo.dto.request.UpdateProjectRequest;
 import com.example.demo.dto.response.ProjectResponse;
 import com.example.demo.dto.response.RequiresSkillResponse;
 import com.example.demo.model.Project;
@@ -53,6 +54,18 @@ public final class ProjectMapper {
         project.setEndDate(request.endDate());
         return project;
     }
+    public static Project toEntity(final UpdateProjectRequest request) {
+        if (request == null) {
+            return null;
+        }
+        final Project project = new Project();
+        project.setName(request.name());
+        project.setRequirements(request.requirements() != null ? request.requirements() : Collections.emptyList());
+        project.setStartDate(request.startDate());
+        project.setEndDate(request.endDate());
+        return project;
+    }
+
 
     private static Set<RequiresSkillResponse> mapRequiredSkills(final Set<RequiresSkill> skills) {
         if (skills == null || skills.isEmpty()) {

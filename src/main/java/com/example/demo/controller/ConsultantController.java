@@ -3,6 +3,7 @@ package com.example.demo.controller;
 import com.example.demo.dto.request.AddSkillRequest;
 import com.example.demo.dto.request.AssignProjectRequest;
 import com.example.demo.dto.request.CreateConsultantRequest;
+import com.example.demo.dto.request.UpdateConsultantRequest;
 import com.example.demo.dto.response.ConsultantResponse;
 import com.example.demo.exception.ResourceNotFoundException;
 import com.example.demo.mapper.ConsultantMapper;
@@ -123,7 +124,7 @@ public class ConsultantController {
     @PutMapping("/{id}")
     public ResponseEntity<ConsultantResponse> update(
             @PathVariable final String id,
-            @Valid @RequestBody final CreateConsultantRequest request) {
+            @Valid @RequestBody final UpdateConsultantRequest request) {
         log.info("[ConsultantController] - UPDATE: id: {}", id);
         final Consultant updatedConsultant = ConsultantMapper.toEntity(request);
         final Consultant savedConsultant = consultantService.update(id, updatedConsultant);

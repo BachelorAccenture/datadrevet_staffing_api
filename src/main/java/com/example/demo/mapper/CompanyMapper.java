@@ -1,6 +1,7 @@
 package com.example.demo.mapper;
 
 import com.example.demo.dto.request.CreateCompanyRequest;
+import com.example.demo.dto.request.UpdateCompanyRequest;
 import com.example.demo.dto.response.CompanyResponse;
 import com.example.demo.model.Company;
 
@@ -42,4 +43,16 @@ public final class CompanyMapper {
         company.setField(request.field());
         return company;
     }
+
+    public static Company toEntity(final UpdateCompanyRequest request) {
+        if (request == null) {
+            return null;
+        }
+        final Company company = new Company();
+        company.setName(request.name());
+        company.setField(request.field());
+        return company;
+    }
+
+
 }
