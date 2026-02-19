@@ -18,22 +18,17 @@ public class SkillService {
 
     public Skill create(final Skill skill) {
         log.info("[SkillService] - CREATE: name: {}", skill.getName());
+
+        if (skillRepository.existsByName(skill.getName())) {
+            throw new IllegalArgumentException("Skill already exists with name: " + skill.getName());
+        }
+
         return skillRepository.save(skill);
     }
 
     public Optional<Skill> findById(final String id) {
         log.debug("[SkillService] - FIND_BY_ID: id: {}", id);
         return skillRepository.findById(id);
-    }
-
-    public Optional<Skill> findByName(final String name) {
-        log.debug("[SkillService] - FIND_BY_NAME: name: {}", name);
-        return skillRepository.findByName(name);
-    }
-
-    public Optional<Skill> findByNameOrSynonym(final String name) {
-        log.debug("[SkillService] - FIND_BY_NAME_OR_SYNONYM: name: {}", name);
-        return skillRepository.findByNameOrSynonym(name);
     }
 
     public List<Skill> findAll() {
@@ -60,9 +55,5 @@ public class SkillService {
     public void delete(final String id) {
         log.info("[SkillService] - DELETE: id: {}", id);
         skillRepository.deleteById(id);
-    }
-
-    public boolean existsByName(final String name) {
-        return skillRepository.existsByName(name);
     }
 }

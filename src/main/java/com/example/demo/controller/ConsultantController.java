@@ -76,15 +76,14 @@ public class ConsultantController {
             @RequestParam(required = false) final Boolean availability,
             @RequestParam(required = false) final Boolean wantsNewProject,
             @RequestParam(required = false) final Boolean openToRemote,
-            @RequestParam(required = false) final Boolean openToRelocation,
             @RequestParam(required = false) final List<String> previousCompanies,
             @RequestParam(required = false) final LocalDateTime startDate,
             @RequestParam(required = false) final LocalDateTime endDate) {
         log.info("[ConsultantController] - SEARCH: skills: {}, role: {}, minYears: {}, availability: {}, " +
-                        "wantsNewProject: {}, openToRemote: {}, openToRelocation: {}, previousCompanies: {}, " +
+                        "wantsNewProject: {}, openToRemote: {}, previousCompanies: {}, " +
                         "startDate: {}, endDate: {}",
                 skillNames, role, minYearsOfExperience, availability, wantsNewProject,
-                openToRemote, openToRelocation, previousCompanies, startDate, endDate);
+                openToRemote, previousCompanies, startDate, endDate);
 
         final List<Consultant> consultants = consultantService.searchConsultants(
                 skillNames, role, minYearsOfExperience, availability, wantsNewProject,

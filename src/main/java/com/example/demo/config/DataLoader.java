@@ -111,9 +111,9 @@ public class DataLoader {
                 consultant.setName(row[0]);
                 consultant.setEmail(row[1]);
                 consultant.setYearsOfExperience(Integer.parseInt(row[2]));
-                consultant.setAvailability(Boolean.parseBoolean(row[3]));
-                consultant.setWantsNewProject(Boolean.parseBoolean(row[4]));
-                consultant.setOpenToRemote(Boolean.parseBoolean(row[5]));
+                consultant.setAvailability(true);
+                consultant.setWantsNewProject(Boolean.parseBoolean(row[3]));
+                consultant.setOpenToRemote(Boolean.parseBoolean(row[4]));
                 consultant = neo4jTemplate.save(consultant);
                 consultantMap.put(consultant.getName(), consultant);
             }
@@ -164,6 +164,21 @@ public class DataLoader {
                 consultantMap.put(consultant.getName(), consultant);
             }
             log.info("Loaded consultant project assignments");
+
+            // ── Recalculate availability based on active assignments ─
+            for (Consultant consultant : consultantMap.values()) {
+                final boolean hasActiveAssignment = consultant.getProjectAssignments().stream()
+                        .anyMatch(a -> Boolean.TRUE.equals(a.getIsActive()));
+                final boolean correctAvailability = !hasActiveAssignment;
+
+                if (correctAvailability != Boolean.TRUE.equals(consultant.getAvailability())) {
+                    log.info("Correcting availability for '{}': {} -> {}",
+                            consultant.getName(), consultant.getAvailability(), correctAvailability);
+                    consultant.setAvailability(correctAvailability);
+                    neo4jTemplate.save(consultant);
+                }
+            }
+            log.info("Recalculated consultant availability");
 
             log.info("Data loading complete!");
         };

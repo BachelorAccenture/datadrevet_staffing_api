@@ -28,6 +28,11 @@ public class ConsultantService {
 
     public Consultant create(final Consultant consultant) {
         log.info("[ConsultantService] - CREATE: email: {}", consultant.getEmail());
+
+        if (consultantRepository.existsByEmail(consultant.getEmail())) {
+            throw new IllegalArgumentException("Consultant already exists with email: " + consultant.getEmail());
+        }
+
         recalculateAvailability(consultant);
         return consultantRepository.save(consultant);
     }
@@ -210,16 +215,7 @@ public class ConsultantService {
         return consultantRepository.save(consultant);
     }
 
-    public boolean existsByEmail(final String email) {
-        return consultantRepository.existsByEmail(email);
-    }
 
-    // ── Private helpers ─────────────────────────────────────
-
-    /**
-     * Sets availability based on whether the consultant has any active project assignments.
-     * A consultant with at least one active assignment is considered unavailable.
-     */
     private void recalculateAvailability(final Consultant consultant) {
         final boolean hasActiveAssignment = consultant.getProjectAssignments().stream()
                 .anyMatch(a -> Boolean.TRUE.equals(a.getIsActive()));

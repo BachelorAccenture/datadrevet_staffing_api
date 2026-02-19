@@ -25,6 +25,11 @@ public class ProjectService {
 
     public Project create(final Project project) {
         log.info("[ProjectService] - CREATE: name: {}", project.getName());
+
+        if (projectRepository.existsByName(project.getName())) {
+            throw new IllegalArgumentException("Project already exists with name: " + project.getName());
+        }
+
         return projectRepository.save(project);
     }
 
@@ -102,9 +107,5 @@ public class ProjectService {
 
         project.getRequiredSkills().add(requiresSkill);
         return projectRepository.save(project);
-    }
-
-    public boolean existsByName(final String name) {
-        return projectRepository.existsByName(name);
     }
 }

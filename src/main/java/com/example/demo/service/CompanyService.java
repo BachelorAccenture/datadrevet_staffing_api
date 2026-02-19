@@ -18,17 +18,17 @@ public class CompanyService {
 
     public Company create(final Company company) {
         log.info("[CompanyService] - CREATE: name: {}", company.getName());
+
+        if (companyRepository.existsByName(company.getName())) {
+            throw new IllegalArgumentException("Company already exists with name: " + company.getName());
+        }
+
         return companyRepository.save(company);
     }
 
     public Optional<Company> findById(final String id) {
         log.debug("[CompanyService] - FIND_BY_ID: id: {}", id);
         return companyRepository.findById(id);
-    }
-
-    public Optional<Company> findByName(final String name) {
-        log.debug("[CompanyService] - FIND_BY_NAME: name: {}", name);
-        return companyRepository.findByName(name);
     }
 
     public List<Company> findAll() {
@@ -60,9 +60,5 @@ public class CompanyService {
     public void delete(final String id) {
         log.info("[CompanyService] - DELETE: id: {}", id);
         companyRepository.deleteById(id);
-    }
-
-    public boolean existsByName(final String name) {
-        return companyRepository.existsByName(name);
     }
 }
