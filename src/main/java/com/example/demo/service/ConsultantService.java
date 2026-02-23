@@ -73,25 +73,26 @@ public class ConsultantService {
     }
 
     public List<Consultant> searchConsultants(final List<String> skillNames,
-                                              final String role,
+                                              final List<String> roles,
                                               final Boolean availability,
                                               final Boolean wantsNewProject,
                                               final Boolean openToRemote,
                                               final List<String> previousCompanies,
                                               final LocalDateTime startDate,
                                               final LocalDateTime endDate) {
-        log.info("[ConsultantService] - SEARCH: skills: {}, role: {}, availability: {}, " +
+        log.info("[ConsultantService] - SEARCH: skills: {}, roles: {}, availability: {}, " +
                         "wantsNewProject: {}, openToRemote: {}, previousCompanies: {}, " +
                         "startDate: {}, endDate: {}",
-                skillNames, role, availability, wantsNewProject,
+                skillNames, roles, availability, wantsNewProject,
                 openToRemote, previousCompanies, startDate, endDate);
 
         final List<String> safeSkillNames = skillNames != null ? skillNames : Collections.emptyList();
+        final List<String> safeRoles = roles != null ? roles : Collections.emptyList();
         final List<String> safePreviousCompanies = previousCompanies != null ? previousCompanies : Collections.emptyList();
 
         return consultantRepository.searchConsultants(
                 safeSkillNames,
-                role,
+                safeRoles,
                 availability,
                 wantsNewProject,
                 openToRemote,
