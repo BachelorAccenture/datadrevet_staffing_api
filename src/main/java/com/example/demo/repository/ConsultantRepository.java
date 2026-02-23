@@ -33,8 +33,7 @@ public interface ConsultantRepository extends Neo4jRepository<Consultant, String
 
     @Query("""
         MATCH (c:Consultant)
-        WHERE ($minYearsOfExperience IS NULL OR c.yearsOfExperience >= $minYearsOfExperience)
-          AND ($availability IS NULL OR c.availability = $availability)
+        WHERE ($availability IS NULL OR c.availability = $availability)
           AND ($wantsNewProject IS NULL OR c.wantsNewProject = $wantsNewProject)
           AND ($openToRemote IS NULL OR c.openToRemote = $openToRemote)
           AND ($role IS NULL OR $role = '' OR EXISTS {
@@ -59,6 +58,25 @@ public interface ConsultantRepository extends Neo4jRepository<Consultant, String
                    AND at.startDate <= $endDate)
                 )
           })
+        WITH c,
+             CASE WHEN size($skillNames) > 0
+                  THEN size([(c)-[:HAS_SKILL]->(s:Skill)
+                             WHERE s.name IN $skillNames | s]) * 10
+                  ELSE 0 END
+             + CASE WHEN c.availability = true THEN 5 ELSE 0 END
+             + CASE WHEN c.wantsNewProject = true THEN 3 ELSE 0 END
+             + CASE WHEN size($previousCompanies) > 0
+                    THEN size([(c)-[:ASSIGNED_TO]->(:Project)-[:OWNED_BY]->(co:Company)
+                               WHERE co.name IN $previousCompanies | co]) * 5
+                    ELSE 0 END
+             + CASE WHEN $role IS NOT NULL AND $role <> ''
+                    THEN CASE WHEN size([(c)-[r:ASSIGNED_TO]->()
+                                         WHERE r.role IS NOT NULL
+                                           AND toLower(r.role) CONTAINS toLower($role) | r]) > 0
+                              THEN 5 ELSE 0 END
+                    ELSE 0 END
+             AS totalScore
+        ORDER BY totalScore DESC
         OPTIONAL MATCH (c)-[hs:HAS_SKILL]->(skill:Skill)
         OPTIONAL MATCH (c)-[at:ASSIGNED_TO]->(project:Project)
         RETURN c, collect(DISTINCT hs), collect(DISTINCT skill), collect(DISTINCT at), collect(DISTINCT project)
@@ -66,7 +84,6 @@ public interface ConsultantRepository extends Neo4jRepository<Consultant, String
     List<Consultant> searchConsultants(
             @Param("skillNames") List<String> skillNames,
             @Param("role") String role,
-            @Param("minYearsOfExperience") Integer minYearsOfExperience,
             @Param("availability") Boolean availability,
             @Param("wantsNewProject") Boolean wantsNewProject,
             @Param("openToRemote") Boolean openToRemote,
