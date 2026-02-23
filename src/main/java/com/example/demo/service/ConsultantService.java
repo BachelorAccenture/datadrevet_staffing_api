@@ -74,17 +74,16 @@ public class ConsultantService {
 
     public List<Consultant> searchConsultants(final List<String> skillNames,
                                               final String role,
-                                              final Integer minYearsOfExperience,
                                               final Boolean availability,
                                               final Boolean wantsNewProject,
                                               final Boolean openToRemote,
                                               final List<String> previousCompanies,
                                               final LocalDateTime startDate,
                                               final LocalDateTime endDate) {
-        log.info("[ConsultantService] - SEARCH: skills: {}, role: {}, minYears: {}, availability: {}, " +
+        log.info("[ConsultantService] - SEARCH: skills: {}, role: {}, availability: {}, " +
                         "wantsNewProject: {}, openToRemote: {}, previousCompanies: {}, " +
                         "startDate: {}, endDate: {}",
-                skillNames, role, minYearsOfExperience, availability, wantsNewProject,
+                skillNames, role, availability, wantsNewProject,
                 openToRemote, previousCompanies, startDate, endDate);
 
         final List<String> safeSkillNames = skillNames != null ? skillNames : Collections.emptyList();
@@ -93,7 +92,6 @@ public class ConsultantService {
         return consultantRepository.searchConsultants(
                 safeSkillNames,
                 role,
-                minYearsOfExperience,
                 availability,
                 wantsNewProject,
                 openToRemote,
