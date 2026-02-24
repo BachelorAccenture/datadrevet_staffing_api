@@ -151,12 +151,16 @@ public class DataLoader {
                 at.setProject(project);
                 at.setRole(row[2]);
                 at.setAllocationPercent(Integer.parseInt(row[3]));
-                at.setIsActive(Boolean.parseBoolean(row[4]));
-                if (row.length > 5 && !row[5].isBlank()) {
-                    at.setStartDate(LocalDateTime.parse(row[5]));
+                at.setIsActive(true);
+                if (row.length > 4 && !row[4].isBlank()) {
+                    at.setStartDate(LocalDateTime.parse(row[4]));
                 }
-                if (row.length > 6 && !row[6].isBlank()) {
-                    at.setEndDate(LocalDateTime.parse(row[6]));
+                if (row.length > 5 && !row[5].isBlank()) {
+                    at.setEndDate(LocalDateTime.parse(row[5]));
+                }
+
+                if (LocalDateTime.now().isAfter(at.getEndDate())) {
+                    at.setIsActive(false);
                 }
                 consultant.getProjectAssignments().add(at);
 
@@ -249,19 +253,41 @@ public class DataLoader {
     }
 
     /**
-     * Parses a role string like "Backend Developer:2;Frontend Developer:1" into a Map.
+     * Parses a role string like "Backend Developer:2;Frontend Developer:1"
+     * into a normalized Map<String, Integer>.
+     *
+     * Keys are lowercased to match roleNormalized stored in Neo4j.
      */
     private Map<String, Integer> parseRolesMap(String value) {
         if (value == null || value.isBlank()) {
             return Collections.emptyMap();
         }
+
         Map<String, Integer> roles = new HashMap<>();
+
         for (String entry : value.split(";")) {
-            String[] parts = entry.trim().split(":");
-            if (parts.length == 2) {
-                roles.put(parts[0].trim(), Integer.parseInt(parts[1].trim()));
+            if (entry.isBlank()) continue;
+
+            // Split only on the FIRST colon (role names might contain ':')
+            String[] parts = entry.trim().split(":", 2);
+            if (parts.length != 2) continue;
+
+            String roleName = parts[0].trim().toLowerCase();   // normalize here
+            String countStr = parts[1].trim();
+
+            if (roleName.isEmpty()) continue;
+
+            try {
+                int count = Integer.parseInt(countStr);
+
+                // Merge duplicates instead of overwriting
+                roles.merge(roleName, count, Integer::sum);
+
+            } catch (NumberFormatException ignored) {
+                // Optionally log malformed entry
             }
         }
+
         return roles;
     }
 }

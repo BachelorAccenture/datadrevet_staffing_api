@@ -40,3 +40,4 @@ src/main/resources/.env
 # macOS
 .DS_Store
 **/.DS_Store
+/Claude.md
