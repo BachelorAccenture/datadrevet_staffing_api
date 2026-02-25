@@ -3,6 +3,7 @@ package com.example.demo.controller;
 import com.example.demo.dto.request.AddSkillRequest;
 import com.example.demo.dto.request.AssignProjectRequest;
 import com.example.demo.dto.request.CreateConsultantRequest;
+import com.example.demo.dto.request.SearchConsultantRequest;
 import com.example.demo.dto.request.UpdateConsultantRequest;
 import com.example.demo.dto.response.ConsultantResponse;
 import com.example.demo.exception.ResourceNotFoundException;
@@ -25,7 +26,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.time.LocalDateTime;
 import java.util.List;
 
 @RestController
@@ -70,24 +70,12 @@ public class ConsultantController {
     }
 
     @GetMapping("/search")
-    public ResponseEntity<List<ConsultantResponse>> search(
-            @RequestParam(required = false) final List<String> skillNames,
-            @RequestParam(required = false) final List<String> roles,
-            @RequestParam(required = false) final Boolean availability,
-            @RequestParam(required = false) final Boolean wantsNewProject,
-            @RequestParam(required = false) final Boolean openToRemote,
-            @RequestParam(required = false) final List<String> previousCompanies,
-            @RequestParam(required = false) final LocalDateTime startDate,
-            @RequestParam(required = false) final LocalDateTime endDate) {
-        log.info("[ConsultantController] - SEARCH: skills: {}, roles: {}, availability: {}, " +
-                        "wantsNewProject: {}, openToRemote: {}, previousCompanies: {}, " +
-                        "startDate: {}, endDate: {}",
-                skillNames, roles, availability, wantsNewProject,
-                openToRemote, previousCompanies, startDate, endDate);
+    public ResponseEntity<List<ConsultantResponse>> search(@Valid final SearchConsultantRequest request) {
+        log.info("[ConsultantController] - SEARCH: {}", request);
 
         final List<Consultant> consultants = consultantService.searchConsultants(
-                skillNames, roles, availability, wantsNewProject,
-                openToRemote, previousCompanies, startDate, endDate);
+                request.skillNames(), request.roles(), request.availability(), request.wantsNewProject(),
+                request.openToRemote(), request.previousCompanies(), request.startDate(), request.endDate());
         return ResponseEntity.ok(ConsultantMapper.toResponseList(consultants));
     }
 

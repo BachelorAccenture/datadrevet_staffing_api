@@ -39,7 +39,7 @@ public interface ConsultantRepository extends Neo4jRepository<Consultant, String
         
         OPTIONAL MATCH (c)-[r:ASSIGNED_TO]->(p:Project)
         WHERE r.role IS NOT NULL
-          AND ANY(role IN $roles WHERE toLower(r.role) CONTAINS role)
+          AND ANY(role IN $roles WHERE toLower(r.role) CONTAINS toLower(role))
         
         OPTIONAL MATCH (c)-[:ASSIGNED_TO]->(:Project)-[:OWNED_BY]->(co:Company)
         WHERE co.name IN $previousCompanies

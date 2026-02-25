@@ -48,3 +48,344 @@ Thomas Dahl,Java,4
 Thomas Dahl,Spring Boot,3
 Thomas Dahl,AWS,3
 Thomas Dahl,SQL,5
+Maja Lund,Agile,1
+Maja Lund,React,4
+Maja Lund,Docker,1
+Maja Lund,Spring Boot,1
+Jonas Haugen,Spring Boot,7
+Jonas Haugen,Java,4
+Jonas Haugen,SQL,8
+Jonas Haugen,Machine Learning,10
+Silje Lie,Machine Learning,2
+Silje Lie,SQL,2
+Silje Lie,AWS,3
+Henrik Iversen,Docker,10
+Henrik Iversen,React,5
+Henrik Iversen,TypeScript,1
+Amalie Strøm,React,3
+Amalie Strøm,SQL,1
+Amalie Strøm,Agile,1
+Amalie Strøm,TypeScript,3
+Amalie Strøm,Python,1
+Kristian Eide,Machine Learning,2
+Kristian Eide,Python,3
+Kristian Eide,AWS,3
+Kristian Eide,Docker,2
+Thea Mathisen,Machine Learning,2
+Thea Mathisen,SQL,1
+Thea Mathisen,Python,2
+Thea Mathisen,Docker,1
+Martin Aasen,React,4
+Martin Aasen,TypeScript,11
+Martin Aasen,Spring Boot,8
+Martin Aasen,Kubernetes,7
+Julie Nordli,Python,5
+Julie Nordli,TypeScript,3
+Julie Nordli,React,6
+Sebastian Moe,AWS,2
+Sebastian Moe,Python,3
+Sebastian Moe,Agile,3
+Sebastian Moe,SQL,7
+Sebastian Moe,Java,2
+Ida Bakken,Kubernetes,1
+Ida Bakken,Docker,1
+Ida Bakken,AWS,1
+Ida Bakken,Spring Boot,1
+Alexander Ruud,Docker,5
+Alexander Ruud,React,9
+Alexander Ruud,TypeScript,3
+Alexander Ruud,Agile,9
+Live Heggen,TypeScript,5
+Live Heggen,React,1
+Live Heggen,Docker,5
+Live Heggen,Agile,3
+Sander Kværn,Java,1
+Sander Kværn,Neo4j,1
+Sander Kværn,Spring Boot,4
+Sander Kværn,AWS,1
+Vilde Myhre,Docker,4
+Vilde Myhre,Agile,9
+Vilde Myhre,React,4
+Vilde Myhre,Kubernetes,5
+Fredrik Holm,AWS,6
+Fredrik Holm,Docker,1
+Fredrik Holm,Kubernetes,10
+Fredrik Holm,Spring Boot,9
+Fredrik Holm,Java,4
+Fredrik Holm,React,10
+Karoline Bøe,Java,2
+Karoline Bøe,SQL,1
+Karoline Bøe,TypeScript,3
+Karoline Bøe,Spring Boot,1
+Even Tangen,Machine Learning,7
+Even Tangen,SQL,4
+Even Tangen,Python,2
+Even Tangen,AWS,1
+Even Tangen,Agile,1
+Maria Gulbrandsen,Agile,2
+Maria Gulbrandsen,SQL,1
+Maria Gulbrandsen,AWS,7
+Maria Gulbrandsen,Python,6
+Oskar Reitan,TypeScript,1
+Oskar Reitan,React,1
+Oskar Reitan,Docker,1
+Oskar Reitan,Python,1
+Helene Wiik,React,2
+Helene Wiik,Agile,2
+Helene Wiik,Python,4
+Helene Wiik,SQL,4
+Helene Wiik,TypeScript,4
+Bjørn Solberg,Java,5
+Bjørn Solberg,Spring Boot,8
+Bjørn Solberg,TypeScript,5
+Bjørn Solberg,SQL,7
+Cecilie Haug,Neo4j,5
+Cecilie Haug,Docker,5
+Cecilie Haug,Java,1
+Dennis Rønning,AWS,1
+Dennis Rønning,Python,1
+Dennis Rønning,Kubernetes,1
+Elise Kjær,React,10
+Elise Kjær,Agile,4
+Elise Kjær,Docker,10
+Patrick Foss,Java,6
+Patrick Foss,Docker,4
+Patrick Foss,SQL,5
+Patrick Foss,Spring Boot,7
+Patrick Foss,Agile,3
+Patrick Foss,Kubernetes,5
+Synne Melby,React,3
+Synne Melby,Agile,2
+Synne Melby,TypeScript,3
+Synne Melby,SQL,1
+Synne Melby,Neo4j,2
+Adrian Valle,Docker,1
+Adrian Valle,Python,1
+Adrian Valle,Kubernetes,1
+Adrian Valle,Agile,1
+Rikke Dalen,Python,6
+Rikke Dalen,SQL,3
+Rikke Dalen,AWS,2
+Rikke Dalen,TypeScript,6
+Mats Brekke,SQL,1
+Mats Brekke,Python,1
+Mats Brekke,AWS,6
+Mats Brekke,Machine Learning,13
+Camilla Sæther,TypeScript,1
+Camilla Sæther,Agile,1
+Camilla Sæther,Docker,2
+Camilla Sæther,React,5
+Vetle Rød,Agile,1
+Vetle Rød,Spring Boot,2
+Vetle Rød,Docker,1
+Vetle Rød,Java,3
+Vetle Rød,Kubernetes,1
+Anette Lier,Docker,3
+Anette Lier,Agile,7
+Anette Lier,React,1
+Anette Lier,TypeScript,3
+Stian Aune,Docker,1
+Stian Aune,Kubernetes,4
+Stian Aune,AWS,2
+Stian Aune,Python,2
+Eline Kaspersen,Python,2
+Eline Kaspersen,TypeScript,2
+Eline Kaspersen,React,2
+Eline Kaspersen,Agile,1
+Torjus Borge,AWS,3
+Torjus Borge,SQL,10
+Torjus Borge,Machine Learning,5
+Torjus Borge,Python,1
+Torjus Borge,Neo4j,2
+Malin Aas,AWS,2
+Malin Aas,SQL,3
+Malin Aas,Python,1
+Malin Aas,Agile,4
+Pål Kristoffersen,Agile,6
+Pål Kristoffersen,Spring Boot,10
+Pål Kristoffersen,Docker,6
+Pål Kristoffersen,SQL,11
+Pål Kristoffersen,Java,14
+Kine Wold,Agile,3
+Kine Wold,Docker,5
+Kine Wold,TypeScript,2
+Kine Wold,React,2
+Robert Karlsen,SQL,1
+Robert Karlsen,AWS,5
+Robert Karlsen,Agile,5
+Robert Karlsen,Python,4
+Lene Nygård,Agile,3
+Lene Nygård,SQL,1
+Lene Nygård,AWS,3
+Lene Nygård,Python,1
+Håkon Ellingsen,Python,3
+Håkon Ellingsen,AWS,1
+Håkon Ellingsen,Machine Learning,1
+Håkon Ellingsen,SQL,4
+Trine Helseth,Docker,4
+Trine Helseth,Neo4j,4
+Trine Helseth,Java,4
+Joakim Sand,Java,1
+Joakim Sand,SQL,1
+Joakim Sand,Spring Boot,1
+Joakim Sand,Machine Learning,1
+Marte Bergan,SQL,9
+Marte Bergan,Python,7
+Marte Bergan,TypeScript,9
+Espen Ask,SQL,11
+Espen Ask,Agile,5
+Espen Ask,TypeScript,9
+Linda Skoglund,Spring Boot,2
+Linda Skoglund,Neo4j,3
+Linda Skoglund,Java,3
+Per Olav Vik,AWS,2
+Per Olav Vik,Docker,1
+Per Olav Vik,Agile,4
+Per Olav Vik,Kubernetes,4
+Per Olav Vik,Python,3
+Sara Hjelm,React,1
+Sara Hjelm,TypeScript,2
+Sara Hjelm,SQL,2
+Sara Hjelm,Python,1
+Tobias Mikkelsen,Python,5
+Tobias Mikkelsen,Agile,7
+Tobias Mikkelsen,Kubernetes,8
+Tobias Mikkelsen,AWS,1
+Monica Aalborg,Docker,1
+Monica Aalborg,Spring Boot,4
+Monica Aalborg,Kubernetes,1
+Monica Aalborg,Java,1
+Kai Frantzen,Agile,4
+Kai Frantzen,Python,8
+Kai Frantzen,AWS,6
+Kai Frantzen,Docker,6
+Heidi Opsahl,Docker,6
+Heidi Opsahl,AWS,4
+Heidi Opsahl,Java,2
+Heidi Opsahl,Spring Boot,1
+Heidi Opsahl,React,1
+Rune Birkeland,Java,10
+Rune Birkeland,Spring Boot,4
+Rune Birkeland,SQL,8
+Rune Birkeland,TypeScript,12
+Åse Lunde,Machine Learning,1
+Åse Lunde,SQL,3
+Åse Lunde,Python,1
+Åse Lunde,AWS,2
+Glenn Thorsen,Spring Boot,5
+Glenn Thorsen,Java,1
+Glenn Thorsen,AWS,5
+Glenn Thorsen,Docker,1
+Glenn Thorsen,Kubernetes,3
+Yvonne Røed,Python,7
+Yvonne Røed,AWS,4
+Yvonne Røed,SQL,1
+Yvonne Røed,Agile,4
+Kent Hammersmark,Python,9
+Kent Hammersmark,Docker,8
+Kent Hammersmark,Agile,8
+Kent Hammersmark,AWS,7
+Kent Hammersmark,Kubernetes,5
+Bente Nyhus,AWS,5
+Bente Nyhus,Kubernetes,5
+Bente Nyhus,Docker,6
+Bente Nyhus,Agile,4
+Arild Skaar,Python,6
+Arild Skaar,Kubernetes,13
+Arild Skaar,AWS,5
+Solveig Viken,Agile,1
+Solveig Viken,Kubernetes,1
+Solveig Viken,Python,1
+Solveig Viken,AWS,2
+Ivar Hagen,Docker,1
+Ivar Hagen,Spring Boot,2
+Ivar Hagen,Neo4j,5
+Grete Fossum,Spring Boot,3
+Grete Fossum,React,4
+Grete Fossum,TypeScript,3
+Grete Fossum,SQL,3
+Kurt Eik,Python,6
+Kurt Eik,Agile,2
+Kurt Eik,React,3
+Kurt Eik,SQL,4
+Ragnhild Dale,TypeScript,3
+Ragnhild Dale,React,2
+Ragnhild Dale,SQL,3
+Ragnhild Dale,Spring Boot,2
+Ragnhild Dale,Java,3
+Steffen Nergaard,Agile,3
+Steffen Nergaard,Spring Boot,8
+Steffen Nergaard,Docker,2
+Steffen Nergaard,Java,1
+Steffen Nergaard,SQL,10
+Tina Hovland,AWS,1
+Tina Hovland,Machine Learning,1
+Tina Hovland,SQL,1
+Tina Hovland,Python,1
+Oddbjørn Klem,Java,5
+Oddbjørn Klem,Kubernetes,2
+Oddbjørn Klem,Docker,4
+Oddbjørn Klem,AWS,2
+Wenche Sørli,Agile,3
+Wenche Sørli,SQL,5
+Wenche Sørli,AWS,5
+Wenche Sørli,Docker,1
+Dag Inge Nustad,TypeScript,9
+Dag Inge Nustad,Docker,2
+Dag Inge Nustad,React,3
+Dag Inge Nustad,Python,1
+Sissel Gran,Agile,3
+Sissel Gran,SQL,2
+Sissel Gran,Python,1
+Sissel Gran,AWS,3
+Sissel Gran,Neo4j,1
+Leif Arne Bjerke,AWS,3
+Leif Arne Bjerke,Python,2
+Leif Arne Bjerke,SQL,1
+Mona Risholt,SQL,4
+Mona Risholt,Agile,3
+Mona Risholt,Spring Boot,5
+Mona Risholt,Neo4j,5
+Roar Bekkevoll,Java,5
+Roar Bekkevoll,Spring Boot,1
+Roar Bekkevoll,Docker,2
+Roar Bekkevoll,Neo4j,4
+Torgeir Kvalheim,SQL,3
+Torgeir Kvalheim,Java,10
+Torgeir Kvalheim,Docker,7
+Torgeir Kvalheim,Spring Boot,11
+Torgeir Kvalheim,Agile,8
+Berit Stensrud,SQL,2
+Berit Stensrud,Docker,3
+Berit Stensrud,Spring Boot,4
+Berit Stensrud,Agile,4
+Øystein Valla,Python,13
+Øystein Valla,Machine Learning,7
+Øystein Valla,AWS,9
+Øystein Valla,SQL,1
+Øystein Valla,Spring Boot,11
+Janne Egeland,React,2
+Janne Egeland,TypeScript,2
+Janne Egeland,Python,1
+Janne Egeland,SQL,1
+Hallvard Træen,SQL,3
+Hallvard Træen,Machine Learning,5
+Hallvard Træen,AWS,9
+Hallvard Træen,TypeScript,1
+Ann Kristin Moen,SQL,6
+Ann Kristin Moen,Python,7
+Ann Kristin Moen,Agile,2
+Vidar Sandvik,Spring Boot,7
+Vidar Sandvik,Neo4j,4
+Vidar Sandvik,Docker,9
+Vidar Sandvik,Java,3
+Vidar Sandvik,Python,2
+Else Margrethe Bye,SQL,5
+Else Margrethe Bye,AWS,5
+Else Margrethe Bye,Machine Learning,4
+Else Margrethe Bye,Python,2
+Else Margrethe Bye,Neo4j,4
+Kjellaug Helle,Spring Boot,4
+Kjellaug Helle,Docker,12
+Kjellaug Helle,Neo4j,4
+Kjellaug Helle,Java,10
