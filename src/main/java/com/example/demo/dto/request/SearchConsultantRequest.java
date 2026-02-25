@@ -14,6 +14,5 @@ public record SearchConsultantRequest(
         Boolean wantsNewProject,
         Boolean openToRemote,
         List<String> previousCompanies,
-        LocalDateTime startDate,
-        LocalDateTime endDate
+        LocalDateTime startDate
 ) {}

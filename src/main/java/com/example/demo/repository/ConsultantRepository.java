@@ -46,8 +46,7 @@ public interface ConsultantRepository extends Neo4jRepository<Consultant, String
         
         OPTIONAL MATCH (c)-[dateCheck:ASSIGNED_TO]->(dateProj:Project)
         WHERE dateCheck.isActive = true
-          AND dateCheck.startDate < $endDate
-          AND dateCheck.endDate > $startDate
+          AND ($startDate IS NULL)
         
         WITH c,
              collect(DISTINCT s)  AS matchedSkills,
@@ -55,7 +54,12 @@ public interface ConsultantRepository extends Neo4jRepository<Consultant, String
              collect(DISTINCT co) AS matchedCompanies,
              collect(DISTINCT dateCheck) AS overlappingAssignments
         
-        WHERE ($availability IS NULL OR c.availability = $availability)
+        WHERE (
+                $availability IS NULL
+                OR $availability <> true
+                OR c.availability = true
+                OR ($startDate IS NOT NULL AND size(overlappingAssignments) = 0)
+              )
           AND ($wantsNewProject IS NULL OR c.wantsNewProject = $wantsNewProject)
           AND ($openToRemote IS NULL OR c.openToRemote = $openToRemote)
           AND (
@@ -63,12 +67,6 @@ public interface ConsultantRepository extends Neo4jRepository<Consultant, String
                 OR size(matchedSkills) > 0
                 OR size(matchedRoles) > 0
                 OR size(matchedCompanies) > 0
-              )
-          AND (
-                $availability <> true
-                OR $startDate IS NULL
-                OR $endDate IS NULL
-                OR size(overlappingAssignments) = 0
               )
         
         WITH c, matchedSkills, matchedRoles, matchedCompanies,
@@ -99,7 +97,6 @@ public interface ConsultantRepository extends Neo4jRepository<Consultant, String
             @Param("openToRemote") Boolean openToRemote,
             @Param("previousCompanies") List<String> previousCompanies,
             @Param("startDate") LocalDateTime startDate,
-            @Param("endDate") LocalDateTime endDate,
             @Param("skillWeight") int skillWeight,
             @Param("roleWeight") int roleWeight,
             @Param("companyWeight") int companyWeight

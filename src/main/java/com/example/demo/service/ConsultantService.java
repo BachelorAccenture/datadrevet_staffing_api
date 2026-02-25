@@ -81,13 +81,12 @@ public class ConsultantService {
                                               final Boolean wantsNewProject,
                                               final Boolean openToRemote,
                                               final List<String> previousCompanies,
-                                              final LocalDateTime startDate,
-                                              final LocalDateTime endDate) {
+                                              final LocalDateTime startDate) {
         log.info("[ConsultantService] - SEARCH: skills: {}, roles: {}, availability: {}, " +
                         "wantsNewProject: {}, openToRemote: {}, previousCompanies: {}, " +
-                        "startDate: {}, endDate: {}",
+                        "startDate: {}",
                 skillNames, roles, availability, wantsNewProject,
-                openToRemote, previousCompanies, startDate, endDate);
+                openToRemote, previousCompanies, startDate);
 
         final List<String> safeSkillNames = skillNames != null ? skillNames : Collections.emptyList();
         final List<String> safeRoles = roles != null ? roles : Collections.emptyList();
@@ -100,7 +99,6 @@ public class ConsultantService {
                 openToRemote,
                 safePreviousCompanies,
                 startDate,
-                endDate,
                 scoringProperties.skillWeight(),
                 scoringProperties.roleWeight(),
                 scoringProperties.companyWeight()

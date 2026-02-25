@@ -75,7 +75,7 @@ public class ConsultantController {
 
         final List<Consultant> consultants = consultantService.searchConsultants(
                 request.skillNames(), request.roles(), request.availability(), request.wantsNewProject(),
-                request.openToRemote(), request.previousCompanies(), request.startDate(), request.endDate());
+                request.openToRemote(), request.previousCompanies(), request.startDate());
         return ResponseEntity.ok(ConsultantMapper.toResponseList(consultants));
     }
 
