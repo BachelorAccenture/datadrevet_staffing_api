@@ -1,7 +1,5 @@
-# qodana-global-configurations.yaml
-version: "1.0"
-profiles:
-  - name: default
-    inspections:
-      - group: ALL
-        enabled: true
+configurations:
+  - id: staffing-api-main
+    name: "Staffing API Main"
+    description: "Global configuration for the staffing web project"
+    qodanaYaml: qodana.yaml
