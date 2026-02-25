@@ -73,11 +73,9 @@ public interface ConsultantRepository extends Neo4jRepository<Consultant, String
         
         WITH c, matchedSkills, matchedRoles, matchedCompanies,
         
-             size(matchedSkills) * 10
-             + CASE WHEN c.availability THEN 5 ELSE 0 END
-             + CASE WHEN c.wantsNewProject THEN 3 ELSE 0 END
-             + size(matchedCompanies) * 5
-             + size(matchedRoles) * 5
+             size(matchedSkills) * $skillWeight
+             + size(matchedRoles) * $roleWeight
+             + size(matchedCompanies) * $companyWeight
              AS totalScore
         
         ORDER BY totalScore DESC
@@ -89,7 +87,8 @@ public interface ConsultantRepository extends Neo4jRepository<Consultant, String
                collect(DISTINCT hs),
                collect(DISTINCT skill),
                collect(DISTINCT at),
-               collect(DISTINCT project)
+               collect(DISTINCT project),
+               collect(DISTINCT totalScore)
         """)
 
     List<Consultant> searchConsultants(
@@ -100,7 +99,11 @@ public interface ConsultantRepository extends Neo4jRepository<Consultant, String
             @Param("openToRemote") Boolean openToRemote,
             @Param("previousCompanies") List<String> previousCompanies,
             @Param("startDate") LocalDateTime startDate,
-            @Param("endDate") LocalDateTime endDate
+            @Param("endDate") LocalDateTime endDate,
+            @Param("skillWeight") int skillWeight,
+            @Param("roleWeight") int roleWeight,
+            @Param("companyWeight") int companyWeight
+
     );
 
     boolean existsByEmail(String email);

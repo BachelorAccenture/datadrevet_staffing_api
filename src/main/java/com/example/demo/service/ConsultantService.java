@@ -1,5 +1,6 @@
 package com.example.demo.service;
 
+import com.example.demo.config.ScoringProperties;
 import com.example.demo.model.Consultant;
 import com.example.demo.model.Project;
 import com.example.demo.model.Skill;
@@ -25,6 +26,8 @@ public class ConsultantService {
     private final ConsultantRepository consultantRepository;
     private final SkillRepository skillRepository;
     private final ProjectRepository projectRepository;
+    private final ScoringProperties scoringProperties;
+
 
     public Consultant create(final Consultant consultant) {
         log.info("[ConsultantService] - CREATE: email: {}", consultant.getEmail());
@@ -90,6 +93,7 @@ public class ConsultantService {
         final List<String> safeRoles = roles != null ? roles : Collections.emptyList();
         final List<String> safePreviousCompanies = previousCompanies != null ? previousCompanies : Collections.emptyList();
 
+        System.out.println(scoringProperties.skillWeight() + " " + scoringProperties.roleWeight() + " " + scoringProperties.companyWeight());
         return consultantRepository.searchConsultants(
                 safeSkillNames,
                 safeRoles,
@@ -98,7 +102,10 @@ public class ConsultantService {
                 openToRemote,
                 safePreviousCompanies,
                 startDate,
-                endDate
+                endDate,
+                scoringProperties.skillWeight(),
+                scoringProperties.roleWeight(),
+                scoringProperties.companyWeight()
         );
     }
 

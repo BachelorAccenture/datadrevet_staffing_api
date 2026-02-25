@@ -13,3 +13,8 @@ spring:
   data:
     neo4j:
       database: neo4j
+
+scoring:
+  skill-weight: 10
+  role-weight: 5
+  company-weight: 5
