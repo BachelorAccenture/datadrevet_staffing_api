@@ -105,6 +105,8 @@ public final class ConsultantMapper {
                 .withRole(assignedTo.getRole())
                 .withAllocationPercent(assignedTo.getAllocationPercent())
                 .withIsActive(assignedTo.getIsActive())
+                .withStartDate(assignedTo.getStartDate())
+                .withEndDate(assignedTo.getEndDate())
                 .build();
     }
 }

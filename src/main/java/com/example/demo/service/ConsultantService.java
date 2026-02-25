@@ -92,8 +92,6 @@ public class ConsultantService {
         final List<String> safeSkillNames = skillNames != null ? skillNames : Collections.emptyList();
         final List<String> safeRoles = roles != null ? roles : Collections.emptyList();
         final List<String> safePreviousCompanies = previousCompanies != null ? previousCompanies : Collections.emptyList();
-
-        System.out.println(scoringProperties.skillWeight() + " " + scoringProperties.roleWeight() + " " + scoringProperties.companyWeight());
         return consultantRepository.searchConsultants(
                 safeSkillNames,
                 safeRoles,
