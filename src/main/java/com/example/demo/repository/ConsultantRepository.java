@@ -44,9 +44,10 @@ public interface ConsultantRepository extends Neo4jRepository<Consultant, String
         OPTIONAL MATCH (c)-[:ASSIGNED_TO]->(:Project)-[:OWNED_BY]->(co:Company)
         WHERE co.name IN $previousCompanies
         
-        OPTIONAL MATCH (c)-[dateCheck:ASSIGNED_TO]->(dateProj:Project)
+        OPTIONAL MATCH (c)-[dateCheck:ASSIGNED_TO]->(dateProject:Project)
         WHERE dateCheck.isActive = true
-          AND ($startDate IS NULL)
+          AND $startDate IS NOT NULL
+          AND (dateCheck.endDate IS NULL OR dateCheck.endDate > $startDate)
         
         WITH c,
              collect(DISTINCT s)  AS matchedSkills,
