@@ -1,8 +1,10 @@
 # Data-Driven Staffing API Documentation
 
-**Version:** 2.0
+**Version:** 2.1
 **Base URL:** `http://localhost:8080/api/v1`
 **Content-Type:** `application/json`
+**Spring Boot:** 3.5.11
+**Java:** 21
 
 ---
 
@@ -23,6 +25,17 @@
 ## Overview
 
 The Data-Driven Staffing API is a RESTful service for managing consultants, their skills, companies, and project assignments in a consulting firm. Built on **Neo4j** (graph database) and **Spring Boot**, it enables efficient matching of consultants to projects based on skills, experience, and availability.
+
+### Technology Stack
+
+- **Spring Boot 3.5.11** - Application framework
+- **Java 21** - Programming language
+- **Neo4j 5** - Graph database
+- **Spring Data Neo4j 7.x** - Database integration
+- **Spring Security** - Security framework
+- **OAuth2 Client** - Authentication support
+- **Testcontainers** - Integration testing
+- **Lombok** - Code generation
 
 ### Key Concepts
 
@@ -60,9 +73,27 @@ This starts Neo4j on `bolt://localhost:7687` with credentials `neo4j/password`.
 ./mvnw spring-boot:run
 ```
 
-The application starts on `http://localhost:8080` and loads sample data automatically when running with the dev profile.
+The application starts on `http://localhost:8080`.
 
-### 3. Verify
+### 3. Configuration
+
+The application can be configured via `src/main/resources/application.yml`:
+
+```yaml
+spring:
+  neo4j:
+    uri: bolt://localhost:7687
+    authentication:
+      username: neo4j
+      password: password
+
+scoring:
+  skill-weight: 10    # Weight for skill matches in search
+  role-weight: 5      # Weight for role matches in search
+  company-weight: 5   # Weight for company matches in search
+```
+
+### 4. Verify
 
 ```bash
 curl http://localhost:8080/api/v1/skills
@@ -438,22 +469,21 @@ curl "http://localhost:8080/api/v1/consultants/available-with-experience?minYear
 
 **`GET /api/v1/consultants/search`**
 
-This is the most powerful endpoint. It combines multiple filters in a single query. All parameters are optional; only the ones you provide are applied.
+This is the most powerful endpoint. It combines multiple filters in a single query with weighted scoring. All parameters are optional; only the ones you provide are applied.
 
 **Query Parameters:**
 
 | Parameter | Type | Description |
 |-----------|------|-------------|
-| `skillNames` | string[] | Filter by skill names (consultant must have at least one) |
-| `role` | string | Filter by role title (partial match, case-insensitive, matches roles on project assignments) |
-| `minYearsOfExperience` | integer | Minimum total years of experience |
+| `skillNames` | string[] | Filter by skill names (consultant must have at least one). Scored with skill-weight (default: 10) |
+| `roles` | string[] | Filter by role titles (partial match, case-insensitive, matches roles on project assignments). Scored with role-weight (default: 5) |
 | `availability` | boolean | Filter by availability status |
 | `wantsNewProject` | boolean | Filter by "wants new project" status |
 | `openToRemote` | boolean | Filter by remote work preference |
-| `openToRelocation` | boolean | Filter by relocation preference |
-| `previousCompanies` | string[] | Filter by companies the consultant has worked with (via project assignments) |
-| `startDate` | long | Availability window start (epoch milliseconds). Excludes consultants with conflicting active assignments |
-| `endDate` | long | Availability window end (epoch milliseconds). Used together with startDate |
+| `previousCompanies` | string[] | Filter by companies the consultant has worked with (via project assignments). Scored with company-weight (default: 5) |
+| `startDate` | string | ISO 8601 date-time (e.g., "2026-03-01T09:00:00"). Returns only consultants available at this date (excludes those with active assignments ending after this date) |
+
+**Note:** Results are ranked by a weighted score: `(matched skills × 10) + (matched roles × 5) + (matched companies × 5)`. These weights can be configured in `application.yml`.
 
 **Example: Find available Java developers open to remote work:**
 
@@ -461,16 +491,16 @@ This is the most powerful endpoint. It combines multiple filters in a single que
 curl "http://localhost:8080/api/v1/consultants/search?skillNames=Java&availability=true&openToRemote=true"
 ```
 
-**Example: Find consultants with DNB experience and 5+ years:**
+**Example: Find consultants with DNB experience:**
 
 ```bash
-curl "http://localhost:8080/api/v1/consultants/search?previousCompanies=DNB&minYearsOfExperience=5"
+curl "http://localhost:8080/api/v1/consultants/search?previousCompanies=DNB"
 ```
 
 **Example: Find available Tech Lead consultants with React and Node.js skills:**
 
 ```bash
-curl "http://localhost:8080/api/v1/consultants/search?role=Tech%20Lead&skillNames=React&skillNames=Node.js&availability=true"
+curl "http://localhost:8080/api/v1/consultants/search?roles=Tech%20Lead&skillNames=React&skillNames=Node.js&availability=true"
 ```
 
 **Response `200 OK`:** Returns the same consultant structure as Get Consultant by ID, including all skills and project assignments for each matched consultant.
@@ -526,6 +556,62 @@ curl -X POST http://localhost:8080/api/v1/consultants/880e8400-.../skills \
 
 **Response `200 OK`:** Returns the full consultant object with the newly added skill.
 
+### Assign Consultant to Project
+
+**`POST /api/v1/consultants/{id}/projects`**
+
+Creates an `ASSIGNED_TO` relationship between the consultant and an existing project.
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| `projectId` | string | Yes | UUID of the project to assign |
+| `role` | string | No | Consultant's role on the project (e.g., "Tech Lead", "Senior Backend Developer") |
+| `allocationPercent` | integer | No | Percentage of time allocated (0-100) |
+| `isActive` | boolean | No | Whether this is a current assignment (default: false) |
+| `startDate` | string | No | Assignment start date (ISO 8601 format) |
+| `endDate` | string | No | Assignment end date (ISO 8601 format) |
+
+**Example:**
+
+```bash
+curl -X POST http://localhost:8080/api/v1/consultants/880e8400-.../projects \
+  -H "Content-Type: application/json" \
+  -d '{
+    "projectId": "990e8400-e29b-41d4-a716-446655440001",
+    "role": "Senior Backend Developer",
+    "allocationPercent": 100,
+    "isActive": true,
+    "startDate": "2026-03-01T09:00:00",
+    "endDate": "2026-09-01T17:00:00"
+  }'
+```
+
+**Response `200 OK`:** Returns the full consultant object with the newly added project assignment.
+
+### Deactivate Project Assignment
+
+**`PATCH /api/v1/consultants/{id}/projects/{projectId}/deactivate`**
+
+Sets `isActive = false` for a consultant's project assignment.
+
+```bash
+curl -X PATCH http://localhost:8080/api/v1/consultants/880e8400-.../projects/990e8400-.../deactivate
+```
+
+**Response `200 OK`:** Returns the full consultant object with the updated assignment.
+
+### Remove Project Assignment
+
+**`DELETE /api/v1/consultants/{id}/projects/{projectId}`**
+
+Completely removes the `ASSIGNED_TO` relationship between a consultant and a project.
+
+```bash
+curl -X DELETE http://localhost:8080/api/v1/consultants/880e8400-.../projects/990e8400-...
+```
+
+**Response `200 OK`:** Returns the full consultant object without the removed assignment.
+
 ---
 
 ## Projects
@@ -540,7 +626,8 @@ Projects represent client engagements that require specific skills and roles.
 |-------|------|----------|-------------|
 | `name` | string | Yes | Project name |
 | `requirements` | string[] | No | List of requirement descriptions |
-| `date` | string | No | Start date in ISO 8601 format (e.g., `"2026-03-01T09:00:00"`) |
+| `startDate` | string | No | Project start date in ISO 8601 format (e.g., `"2026-03-01T09:00:00"`) |
+| `endDate` | string | No | Project end date in ISO 8601 format (e.g., `"2026-12-31T17:00:00"`) |
 | `companyId` | string | No | UUID of the company to assign. If provided, the project is immediately linked to this company |
 
 **Example:**
@@ -551,7 +638,8 @@ curl -X POST http://localhost:8080/api/v1/projects \
   -d '{
     "name": "Digital Transformation Platform",
     "requirements": ["Cloud migration", "API development", "Security compliance"],
-    "date": "2026-03-01T09:00:00",
+    "startDate": "2026-03-01T09:00:00",
+    "endDate": "2026-12-31T17:00:00",
     "companyId": "770e8400-e29b-41d4-a716-446655440001"
   }'
 ```
@@ -563,7 +651,8 @@ curl -X POST http://localhost:8080/api/v1/projects \
   "id": "990e8400-...",
   "name": "Digital Transformation Platform",
   "requirements": ["Cloud migration", "API development", "Security compliance"],
-  "date": "2026-03-01T09:00:00",
+  "startDate": "2026-03-01T09:00:00",
+  "endDate": "2026-12-31T17:00:00",
   "company": {
     "id": "770e8400-...",
     "name": "Equinor",
@@ -589,7 +678,8 @@ curl -X POST http://localhost:8080/api/v1/projects \
   "id": "990e8400-...",
   "name": "Modernisering av nettbank",
   "requirements": ["Bygge ny nettbanklosning", "Implementere sanntids transaksjoner"],
-  "date": "2026-02-16T12:00:00",
+  "startDate": "2026-02-16T09:00:00",
+  "endDate": "2026-08-31T17:00:00",
   "company": {
     "id": "770e8400-...",
     "name": "DNB",
@@ -650,7 +740,7 @@ curl "http://localhost:8080/api/v1/projects/by-required-skills?skillNames=Java&s
 
 **`PUT /api/v1/projects/{id}`**
 
-Updates project name, requirements, and date. Does not modify company assignment or required skills.
+Updates project name, requirements, start date, and end date. Does not modify company assignment or required skills.
 
 ```bash
 curl -X PUT http://localhost:8080/api/v1/projects/990e8400-... \
@@ -658,7 +748,8 @@ curl -X PUT http://localhost:8080/api/v1/projects/990e8400-... \
   -d '{
     "name": "Digital Transformation Platform v2",
     "requirements": ["Cloud migration", "API development", "CI/CD"],
-    "date": "2026-04-01T09:00:00"
+    "startDate": "2026-04-01T09:00:00",
+    "endDate": "2027-01-31T17:00:00"
   }'
 ```
 
@@ -776,6 +867,9 @@ The graph database uses the following structure:
 | PUT | `/api/v1/consultants/{id}` | Update consultant |
 | DELETE | `/api/v1/consultants/{id}` | Delete consultant |
 | POST | `/api/v1/consultants/{id}/skills` | Add skill to consultant |
+| POST | `/api/v1/consultants/{id}/projects` | Assign consultant to project |
+| PATCH | `/api/v1/consultants/{id}/projects/{projectId}/deactivate` | Deactivate project assignment |
+| DELETE | `/api/v1/consultants/{id}/projects/{projectId}` | Remove project assignment |
 | | **Projects** | |
 | POST | `/api/v1/projects` | Create project |
 | GET | `/api/v1/projects` | Get all projects |
@@ -828,6 +922,8 @@ PROJECT_ID=$(curl -s -X POST http://localhost:8080/api/v1/projects \
   -d "{
     \"name\": \"Nettbank Modernisering\",
     \"requirements\": [\"Modern frontend\", \"Security\"],
+    \"startDate\": \"2026-03-01T09:00:00\",
+    \"endDate\": \"2026-09-30T17:00:00\",
     \"companyId\": \"${COMPANY_ID}\"
   }" | jq -r '.id')
 
@@ -842,4 +938,15 @@ curl "http://localhost:8080/api/v1/consultants/search?skillNames=Java&availabili
 
 ---
 
-*Documentation for Data-Driven Staffing API v2.0*
+## Recent Changes (v2.1)
+
+- Updated to Spring Boot 3.5.11 and Java 21
+- Added support for project start and end dates
+- Added consultant-to-project assignment management endpoints
+- Enhanced search with weighted scoring system
+- Added startDate and endDate to project assignments
+- Improved availability filtering based on project end dates
+
+---
+
+*Documentation for Data-Driven Staffing API v2.1*
