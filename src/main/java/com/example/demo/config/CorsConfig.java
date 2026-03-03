@@ -16,7 +16,7 @@ public class CorsConfig {
         final CorsConfiguration configuration = new CorsConfiguration();
 
         // Allow requests from your React dev server
-        configuration.setAllowedOrigins(List.of("http://localhost:5174", "http://localhost:5173"));
+        configuration.setAllowedOrigins(List.of("http://localhost:5174", "http://localhost:5173", "http://localhost:3000"));
 
         // Allow all common HTTP methods
         configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
@@ -28,7 +28,7 @@ public class CorsConfig {
         configuration.setAllowCredentials(true);
 
         final UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        source.registerCorsConfiguration("/api/**", configuration);
+        source.registerCorsConfiguration("/api/v1/**", configuration);
 
         return source;
     }
