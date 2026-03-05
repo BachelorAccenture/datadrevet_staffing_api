@@ -32,10 +32,9 @@ src/main/resources/.env
 
 ### VS Code ###
 .vscode/
-/.mvn/
+
 /.gitattributes
-/mvnw
-/mvnw.cmd
+
 
 # macOS
 .DS_Store
