@@ -1,5 +1,4 @@
 # Data-Driven Staffing API Documentation
-
 **Version:** 2.1
 **Base URL:** `http://localhost:8080/api/v1`
 **Content-Type:** `application/json`
